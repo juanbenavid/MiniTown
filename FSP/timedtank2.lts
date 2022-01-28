@@ -1,0 +1,7 @@
+TANK(L=0, M=17, N=25, P=25) = T[0][0], 
+T[t:L..N][h:0..P] = (when (t < M) tick[t][h] -> T[t+1][2+t/8]
+			|when(t >= M && t < N) tick[t][h] -> T[t+1][4-t/10]
+			). 
+
+
+

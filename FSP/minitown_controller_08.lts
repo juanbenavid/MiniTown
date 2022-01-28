@@ -1,0 +1,68 @@
+const M = 1
+const J = 3
+const H = 3
+const T = 2
+
+range PumpState = 0..M
+range DemandState = 1..J
+range TankState = 1..H
+range Time = 0..T
+
+const A = 1
+const B = 1
+const C = 3
+const D = 1
+
+//Timer process
+TIMER = (start ->TIME), 
+    TIME = (tick -> TIME
+        |stop -> TIMER
+    ). 
+
+//TANK
+TANK = (start -> T[A][B][C][D]), 
+T[p:PumpState][d:DemandState][h:TankState][t:Time] = 
+    (stop -> TANK
+    |getPumpState[p] -> getDemandState[d] -> getTankState[h] -> next[p][d][h][t] ->
+        (when(p==0 && d==1 && h>0 && h<4) noChangeT -> T[p][d][h][t]
+        |when(p==0 && d==2 && h>0 && h<4) incT -> T[p][d][h+1][t]
+        |when(p==0 && d==3 && h>0 && h<4) incT -> T[p][d][h+2][t]
+        |when(p==1 && d==2 && h>0 && h<4) noChangeT -> T[p][d][h][t]
+        |when(p==1 && d==3 && h>0 && h<4) incT -> T[p][d][h+1][t]
+        |when(p==1 && d==1 && h>0 && h<4) decT -> T[p][d][h-1][t]
+        )
+    ).
+    
+
+//Sensors
+DEMANDSENSOR = 
+    (getDemandState[d:DemandState] -> demandchan.send[d] -> DEMANDSENSOR). 
+
+PUMPSENSOR = 
+    (getPumpState[p:PumpState] -> pumpchan02.receive[p] -> pumpchan.send[p] -> PUMPSENSOR). 
+
+TANKSENSOR =
+    (getTankState[h:TankState] -> tankchan.send[h] -> TANKSENSOR). 
+
+//PUMP controller
+PUMP = (start -> PC), 
+    PC = (stop -> PUMP  
+        |pumpcontrollerchan.receive[p:PumpState] ->
+            (when(p==1) pumpchan02.send[1] -> PC
+            |when(p==0) pumpchan02.send[0] -> PC
+            )
+        ). 
+
+CONTROL = (start -> C[1][0]),
+	C[hi:TankState][pi:PumpState] = 
+		(tankchan.receive[h:TankState] -> pumpchan.receive[p:PumpState] -> changepump ->
+			(when(h>=1 && h<3 && p<1) pumpcontrollerchan.send[1] -> C[h][1]
+			|when(h>=1 && h<3 && p>1) pumpcontrollerchan.send[1] -> C[h][1]
+			|when(h>=1 && h<3 && p==1) noChangeP -> C[h][p]
+            |when(h==3 && p>0) pumpcontrollerchan.send[0] -> C[h][0]
+			|when(h==3 && p==0) noChangeP -> C[h][p]
+			)
+		).
+
+||SYS = (TANK || CONTROL || PUMP || DEMANDSENSOR || PUMPSENSOR || TANKSENSOR)
+	/{tankchan/tankchan.{send,receive}, demandchan/demandchan.{send, receive}, pumpchan/pumpchan.{send,receive}, pumpcontrollerchan/pumpcontrollerchan.{send,receive}}. 

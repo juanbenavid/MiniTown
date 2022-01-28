@@ -1,0 +1,49 @@
+range TankState = 0..27
+range DemandState = 0..13
+range PumpState = 0..2
+
+SYS = D[0],
+D[d:DemandState] = 
+	(noChangeD -> D[d]
+	| incD -> D[d+1]
+	| decD -> D[d-1]
+	|demand[d] -> P[d]
+	),
+
+P[d:0..3][p:0..2] = 
+	(noChangeP -> P[p]
+	|incP -> P[p+1]
+	|decP -> P[p-1]
+	|pump[p] -> T[d][p]
+	), 
+
+T[d:0..3][p:0..2][h:0..7] = 
+	(when (d==0) noChangeT -> T[h]
+	|when (d==1) decT -> T[h - 26/107]). 
+
+range TankState = 0..27
+range DemandState = 0..13
+range PumpState = 0..2
+
+
+SYS = D[3], 
+D[d:DemandState] = 
+	(be[d] -> 
+
+TANK = T[4], 
+T[t:TankState] = 
+
+D[d:DemandState][p:PumpState][t:TankState] = 
+	(noChangeD -> D[d][p][t]
+	| incD -> D[d+1][p][t]
+	| decD -> D[d-1][p][t]
+	|demand[d] -> P[d][p][t]
+	),
+
+P[d:DemandState][p:PumpState][t:TankState] = 
+	(noChangeP -> P[d][p][t]
+	|when(p<2)incP -> P[d][p+1][t]
+	|when(p>0)decP -> P[d][p-1][t]
+	|pump[p] -> T[d][p]
+	). 
+ 

@@ -1,0 +1,36 @@
+const M = 2
+const J = 4
+const H = 3
+const T = 4
+
+range PumpState = 0..M
+range DemandState = 1..J
+range TankState = 1..H
+range Time = 1..T
+
+const A = 1
+const B = 1
+const C = 3
+const D = 1
+
+DEMANDSENSOR = 
+    (getDemandState[d:DemandState] -> demandchan.send[d] -> DEMANDSENSOR). 
+
+TIMESENSOR = 
+	(getTime[t:Time] -> timechan.send[t] -> TIMESENSOR). 
+
+DEMAND = (start -> D[1][1]), 
+	D[di:DemandState][ti:Time] =
+		(demandchan.receive[d:DemandState] -> timechan.receive[t:Time] -> changedemand -> 
+			(when(t==1 && d==1) changeD -> D[d+1][t+1]
+			|when(t==2 && d==2) changeD -> D[d+1][t+1]
+			|when(t==3 && d==3) changeD -> D[d+1][t+1]
+			|when(t==4 && d==4) end -> STOP
+			)
+		). 
+
+||SYS = (DEMANDSENSOR || TIMESENSOR || DEMAND)
+	/{demandchan/demandchan.{send, receive}, timechan/timechan.{send, receive}}. 
+
+property TANKL = (getTankState[h:1..3] -> TANKL).
+property SYSTEM = 

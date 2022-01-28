@@ -1,0 +1,13 @@
+const Max = 1
+const NoPump = 0 
+const LoPump = 1 
+const HiPump = 2
+range PumpSetting = 0..2
+
+PUMP = P[NoPump], 
+P[s:PumpSetting] = 
+	(be[s] -> TANK[s][h]
+	), 
+ 
+TANK[s:PumpSetting][N=200] = 
+	(when (s == NoPump) 
