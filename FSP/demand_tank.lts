@@ -1,0 +1,32 @@
+TANK(N=6) = HEIGHT[0],          // water level of tank (start full)
+HEIGHT[h:0..N] =
+  (when(h<N) tick -> raise -> HEIGHT[h+1]
+  |when(h>0) tick -> lower -> HEIGHT[h-1]
+  ).
+
+DEMAND(S=5) = DEMAND[0],
+DEMAND[i:0..S] = 
+    (tick -> DEMAND[i]
+	|when(i<S-0) tick -> inc[1] -> DEMAND[i+1]
+    |when(i<S-1) tick -> inc[2] -> DEMAND[i+2]
+    |when(i<S-2) tick -> inc[3] -> DEMAND[i+3]
+    |when(i<S-3) tick -> inc[4] -> DEMAND[i+4]
+    |when(i<S-4) tick -> inc[5] -> DEMAND[i+5]
+    |when(i>0) tick -> dec[1] -> DEMAND[i-1]
+    |when(i>1) tick -> dec[2] -> DEMAND[i-2]
+    |when(i>2) tick -> dec[3] -> DEMAND[i-3]
+    |when(i>3) tick -> dec[4] -> DEMAND[i-4]
+    |when(i>4) tick -> dec[5] -> DEMAND[i-5]
+	). 
+
+PUMP(P=2) = PUMP[0], 
+PUMP[p:0..P] = 
+	(when(p==0) tick -> pump1.on -> PUMP[1]
+	|when(p==1) tick -> pump1.on -> PUMP[2]
+	|when(p==0) tick -> pump2.on -> PUMP[2]
+	|when(p==1) tick -> pump1.off -> PUMP[0]
+	|when(p==2) tick -> pump2.off -> PUMP[0]
+	|when(p==2) tick -> pump1.off -> PUMP[1]
+	). 
+
+PFLOW

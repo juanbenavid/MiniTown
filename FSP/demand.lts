@@ -1,0 +1,34 @@
+const M = 2
+const J = 3
+const H = 3
+const T = 6
+
+range PumpState = 0..M
+range DemandState = 1..J
+range TankState = 1..H
+range Time = 0..T
+
+const A = 1
+const B = 1
+const C = 3
+const D = 1
+
+TIMER = (start ->TIME), 
+    TIME = (tick ->  -> TIME
+        |stop -> TIMER
+    ).
+
+
+
+DEMAND = (start -> D[1][2]), 
+	D[di:DemandState][t:Time] =
+		(timechan.receive[t:Time] -> demandchan.receive[d:DemandState] -> changedemand -> 
+			(when(t==1) changeD -> D[1][t+1]
+			|when(t==2) changeD -> D[2][t+1]
+			|when(t==3) changeD -> D[2][t+1]
+			|when(t==4) changeD -> D[1][t+1]
+			|when(t==5) changeD -> D[3][t+1]
+			|when(t==6) end -> STOP
+			)
+		). 
+
