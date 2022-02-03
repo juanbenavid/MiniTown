@@ -20,10 +20,22 @@ pat_demand = [225.63, 218.22, 213.24, 168.47, 150.12, 141.09, 162.9, 152.33, 137
 
 normalized = pat_demand ./ maximum(pat_demand)
 
+# for real demand
 println("next(demand) := case")
 for (i,j) in enumerate(normalized)
-    println("next(time) = ",i," : ",round(j,digits=1),";")
+    println("   next(time) = ",i," : ",round(j,digits=1),";")
 end
-println("TRUE:1;")
+println("   TRUE:1;")
 println("esac;")
+
+# For discretized demand
+demandStates = [0,0.25,0.5,0.75,1.0]
+println("next(demand) := case")
+for (i,j) in enumerate(normalized)
+    rounded = demandStates[argmin(abs.(j .- demandStates))]
+    println("   next(time) = ",i," : ",Int(rounded*100),";")
+end
+println("   TRUE:1;")
+println("esac;")
+
 
