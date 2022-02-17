@@ -26,7 +26,8 @@ VAR
   tank   : -10..660;
   time   : 0..200;
 
-  actuator: {0,1,2};
+  actuator1: {on,off};
+  actuator2: {on,off};
   tankSensor: -10..660;
   attacker: {active,waiting};
 
@@ -34,12 +35,17 @@ ASSIGN
 
 init(attacker) := waiting;
 init(tankSensor) := 500;
+init(actuator1) := on;
+init(actuator2) := off;
 
 init(tank) := 500; -- change this as needed
 init(pump1) := on;
 init(pump2) := off;
 init(time) := 0;
 init(demand) := 100;
+
+next(pump1) := next(actuator1);
+next(pump2) := next(actuator2);
 
 next(attacker) := case
 
@@ -61,18 +67,18 @@ next(time) := case
 	TRUE : time;
 esac;
 
-next(pump1) := case
+next(actuator1) := case
 
 	next(tankSensor) <= 400 : on;
 	next(tankSensor) >= 630: off;
-	TRUE : pump1;
+	TRUE : actuator1;
 esac;
 
-next(pump2) := case
+next(actuator2) := case
 
 	next(tankSensor) <= 100 : on;
 	next(tankSensor) >= 450: off;
-	TRUE : pump2;
+	TRUE : actuator2;
 esac;
 
 
