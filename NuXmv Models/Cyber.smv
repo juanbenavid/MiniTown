@@ -13,7 +13,7 @@
 -- = is equality
 -- case blocks are equivalent to if/else statements
 -- : defines a relation ( belonging to a type/set)
--- -> is implicati
+-- -> is implication
 
 MODULE main
 
