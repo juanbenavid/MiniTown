@@ -1,0 +1,591 @@
+-- MiniTown NuXmv Model Discrete
+-- Juan Benavides 3/2022
+
+
+-- Run with:
+-- read_model -i CyberDoSFinite.smv ; go ; check_ltlspec -n #
+-- where # is the ltlspec you want to verify
+-- or 
+-- read_model -i CyberDoSFinite.smv ; go ; pick_state ; simulate -v -k n
+-- where n is number of states you wish to simulate
+-- Should take a couple of minutes - but will run
+
+-- Syntax notes:
+-- := is assignment
+-- = is equality
+-- case blocks are equivalent to if/else statements
+-- : defines a relation ( belonging to a type/set)
+-- -> is implication
+
+MODULE main
+
+DEFINE
+
+VAR
+  pump1  : {on,off};
+  pump2  : {on,off};
+  demand : {0,25,50,75,100};
+  tank   : -10..660;
+  time   : 0..200;
+
+  actuator1: {on,off};
+  actuator2: {on,off};
+  tankSensor: -10..660;
+  DoS: {active,waiting};
+--  attackTime: {25,50,75,100,125,150,175,200};
+  attackTime: 5..150;
+
+ASSIGN
+
+init(DoS) := waiting;
+init(tankSensor) := 500;
+init(actuator1) := on;
+init(actuator2) := off;
+
+init(tank) := 500; -- change this as needed
+init(pump1) := on;
+init(pump2) := off;
+init(time) := 0;
+init(demand) := 100;
+
+next(pump1) := next(actuator1);
+next(pump2) := next(actuator2);
+
+next(attackTime) := attackTime;
+
+next(actuator1) := case
+
+	next(tankSensor) <= 400 & DoS = waiting : on;
+	next(tankSensor) >= 630 & DoS = waiting : off;
+	TRUE : actuator1;
+esac;
+
+next(actuator2) := case
+
+	next(tankSensor) <= 100 & DoS = waiting : on;
+	next(tankSensor) >= 450 & DoS = waiting : off;
+	TRUE : actuator2;
+esac;
+
+next(tankSensor) := case
+	
+	DoS = active: tankSensor;
+	TRUE: next(tank);
+esac;
+
+next(DoS) := case
+
+	time >= attackTime & time <= attackTime +25: active;
+	TRUE: waiting; 
+
+esac;
+
+
+-- have to do this or else nuxmv complains that time isnt defined past 200
+next(time) := case
+
+	time <= 199: time + 1;
+	TRUE : time;
+esac;
+
+
+
+next(demand) := case
+
+   next(time) = 1 : 100;
+   next(time) = 2 : 100;
+   next(time) = 3 : 75;
+   next(time) = 4 : 75;
+   next(time) = 5 : 50;
+   next(time) = 6 : 50;
+   next(time) = 7 : 75;
+   next(time) = 8 : 50;
+   next(time) = 9 : 50;
+   next(time) = 10 : 75;
+   next(time) = 11 : 75;
+   next(time) = 12 : 75;
+   next(time) = 13 : 75;
+   next(time) = 14 : 50;
+   next(time) = 15 : 50;
+   next(time) = 16 : 50;
+   next(time) = 17 : 75;
+   next(time) = 18 : 75;
+   next(time) = 19 : 100;
+   next(time) = 20 : 100;
+   next(time) = 21 : 75;
+   next(time) = 22 : 75;
+   next(time) = 23 : 75;
+   next(time) = 24 : 75;
+   next(time) = 25 : 75;
+   next(time) = 26 : 75;
+   next(time) = 27 : 75;
+   next(time) = 28 : 75;
+   next(time) = 29 : 75;
+   next(time) = 30 : 75;
+   next(time) = 31 : 75;
+   next(time) = 32 : 50;
+   next(time) = 33 : 75;
+   next(time) = 34 : 75;
+   next(time) = 35 : 100;
+   next(time) = 36 : 75;
+   next(time) = 37 : 75;
+   next(time) = 38 : 75;
+   next(time) = 39 : 75;
+   next(time) = 40 : 75;
+   next(time) = 41 : 75;
+   next(time) = 42 : 75;
+   next(time) = 43 : 50;
+   next(time) = 44 : 50;
+   next(time) = 45 : 50;
+   next(time) = 46 : 50;
+   next(time) = 47 : 50;
+   next(time) = 48 : 50;
+   next(time) = 49 : 50;
+   next(time) = 50 : 75;
+   next(time) = 51 : 100;
+   next(time) = 52 : 75;
+   next(time) = 53 : 50;
+   next(time) = 54 : 50;
+   next(time) = 55 : 75;
+   next(time) = 56 : 75;
+   next(time) = 57 : 75;
+   next(time) = 58 : 75;
+   next(time) = 59 : 75;
+   next(time) = 60 : 50;
+   next(time) = 61 : 50;
+   next(time) = 62 : 50;
+   next(time) = 63 : 50;
+   next(time) = 64 : 50;
+   next(time) = 65 : 75;
+   next(time) = 66 : 100;
+   next(time) = 67 : 75;
+   next(time) = 68 : 75;
+   next(time) = 69 : 75;
+   next(time) = 70 : 75;
+   next(time) = 71 : 100;
+   next(time) = 72 : 100;
+   next(time) = 73 : 100;
+   next(time) = 74 : 75;
+   next(time) = 75 : 75;
+   next(time) = 76 : 75;
+   next(time) = 77 : 50;
+   next(time) = 78 : 50;
+   next(time) = 79 : 50;
+   next(time) = 80 : 75;
+   next(time) = 81 : 75;
+   next(time) = 82 : 75;
+   next(time) = 83 : 100;
+   next(time) = 84 : 75;
+   next(time) = 85 : 75;
+   next(time) = 86 : 100;
+   next(time) = 87 : 75;
+   next(time) = 88 : 75;
+   next(time) = 89 : 75;
+   next(time) = 90 : 75;
+   next(time) = 91 : 50;
+   next(time) = 92 : 50;
+   next(time) = 93 : 50;
+   next(time) = 94 : 50;
+   next(time) = 95 : 50;
+   next(time) = 96 : 50;
+   next(time) = 97 : 50;
+   next(time) = 98 : 50;
+   next(time) = 99 : 75;
+   next(time) = 100 : 75;
+   next(time) = 101 : 50;
+   next(time) = 102 : 50;
+   next(time) = 103 : 75;
+   next(time) = 104 : 75;
+   next(time) = 105 : 75;
+   next(time) = 106 : 100;
+   next(time) = 107 : 100;
+   next(time) = 108 : 100;
+   next(time) = 109 : 75;
+   next(time) = 110 : 75;
+   next(time) = 111 : 75;
+   next(time) = 112 : 50;
+   next(time) = 113 : 50;
+   next(time) = 114 : 50;
+   next(time) = 115 : 50;
+   next(time) = 116 : 50;
+   next(time) = 117 : 75;
+   next(time) = 118 : 75;
+   next(time) = 119 : 75;
+   next(time) = 120 : 75;
+   next(time) = 121 : 100;
+   next(time) = 122 : 75;
+   next(time) = 123 : 75;
+   next(time) = 124 : 75;
+   next(time) = 125 : 50;
+   next(time) = 126 : 50;
+   next(time) = 127 : 50;
+   next(time) = 128 : 50;
+   next(time) = 129 : 75;
+   next(time) = 130 : 75;
+   next(time) = 131 : 75;
+   next(time) = 132 : 75;
+   next(time) = 133 : 75;
+   next(time) = 134 : 75;
+   next(time) = 135 : 75;
+   next(time) = 136 : 75;
+   next(time) = 137 : 75;
+   next(time) = 138 : 75;
+   next(time) = 139 : 75;
+   next(time) = 140 : 75;
+   next(time) = 141 : 75;
+   next(time) = 142 : 100;
+   next(time) = 143 : 100;
+   next(time) = 144 : 100;
+   next(time) = 145 : 75;
+   next(time) = 146 : 75;
+   next(time) = 147 : 75;
+   next(time) = 148 : 50;
+   next(time) = 149 : 50;
+   next(time) = 150 : 50;
+   next(time) = 151 : 25;
+   next(time) = 152 : 25;
+   next(time) = 153 : 25;
+   next(time) = 154 : 50;
+   next(time) = 155 : 50;
+   next(time) = 156 : 50;
+   next(time) = 157 : 50;
+   next(time) = 158 : 50;
+   next(time) = 159 : 100;
+   next(time) = 160 : 100;
+   next(time) = 161 : 75;
+   next(time) = 162 : 75;
+   next(time) = 163 : 75;
+   next(time) = 164 : 75;
+   next(time) = 165 : 100;
+   next(time) = 166 : 100;
+   next(time) = 167 : 100;
+   next(time) = 168 : 100;
+   next(time) = 169 : 50;
+   TRUE:100;
+
+esac;
+
+TRANS pump1 = off & pump2 = on & demand =  0 & tank >= 0 & tank < 507 -> next(tank) = tank - -13 ;
+TRANS pump1 = on & pump2 = off & demand =  0  & tank >= 0 & tank < 507 -> next(tank) = tank - -13 ;
+TRANS pump1 = off & pump2 = on & demand =  0 & tank >= 507 & tank < 639 -> next(tank) = tank - -12 ;
+TRANS pump1 = on & pump2 = off & demand =  0  & tank >= 507 & tank < 639 -> next(tank) = tank - -12 ;
+TRANS pump1 = off & pump2 = on & demand =  0 & tank >= 639 & tank < 640 -> next(tank) = tank - -11 ;
+TRANS pump1 = on & pump2 = off & demand =  0  & tank >= 639 & tank < 640 -> next(tank) = tank - -11 ;
+TRANS pump1 = off & pump2 = on & demand =  0 & tank >= 640 & tank < 641 -> next(tank) = tank - -10 ;
+TRANS pump1 = on & pump2 = off & demand =  0  & tank >= 640 & tank < 641 -> next(tank) = tank - -10 ;
+TRANS pump1 = off & pump2 = on & demand =  0 & tank >= 641 & tank < 642 -> next(tank) = tank - -9 ;
+TRANS pump1 = on & pump2 = off & demand =  0  & tank >= 641 & tank < 642 -> next(tank) = tank - -9 ;
+TRANS pump1 = off & pump2 = on & demand =  0 & tank >= 642 & tank < 643 -> next(tank) = tank - -8 ;
+TRANS pump1 = on & pump2 = off & demand =  0  & tank >= 642 & tank < 643 -> next(tank) = tank - -8 ;
+TRANS pump1 = off & pump2 = on & demand =  0 & tank >= 643 & tank < 644 -> next(tank) = tank - -7 ;
+TRANS pump1 = on & pump2 = off & demand =  0  & tank >= 643 & tank < 644 -> next(tank) = tank - -7 ;
+TRANS pump1 = off & pump2 = on & demand =  0 & tank >= 644 & tank < 645 -> next(tank) = tank - -6 ;
+TRANS pump1 = on & pump2 = off & demand =  0  & tank >= 644 & tank < 645 -> next(tank) = tank - -6 ;
+TRANS pump1 = off & pump2 = on & demand =  0 & tank >= 645 & tank < 646 -> next(tank) = tank - -5 ;
+TRANS pump1 = on & pump2 = off & demand =  0  & tank >= 645 & tank < 646 -> next(tank) = tank - -5 ;
+TRANS pump1 = off & pump2 = on & demand =  0 & tank >= 646 & tank < 647 -> next(tank) = tank - -4 ;
+TRANS pump1 = on & pump2 = off & demand =  0  & tank >= 646 & tank < 647 -> next(tank) = tank - -4 ;
+TRANS pump1 = off & pump2 = on & demand =  0 & tank >= 647 & tank < 648 -> next(tank) = tank - -3 ;
+TRANS pump1 = on & pump2 = off & demand =  0  & tank >= 647 & tank < 648 -> next(tank) = tank - -3 ;
+TRANS pump1 = off & pump2 = on & demand =  0 & tank >= 648 & tank < 649 -> next(tank) = tank - -2 ;
+TRANS pump1 = on & pump2 = off & demand =  0  & tank >= 648 & tank < 649 -> next(tank) = tank - -2 ;
+TRANS pump1 = off & pump2 = on & demand =  0 & tank >= 649 & tank < 650 -> next(tank) = tank - -1 ;
+TRANS pump1 = on & pump2 = off & demand =  0  & tank >= 649 & tank < 650 -> next(tank) = tank - -1 ;
+TRANS pump1 = off & pump2 = on & demand =  0 & tank >= 650 & tank < 651 -> next(tank) = tank - 0 ;
+TRANS pump1 = on & pump2 = off & demand =  0  & tank >= 650 & tank < 651 -> next(tank) = tank - 0 ;
+TRANS pump1 = off & pump2 = on & demand =  0 & tank >= 651 & tank < 652 -> next(tank) = tank - 1 ;
+TRANS pump1 = on & pump2 = off & demand =  0  & tank >= 651 & tank < 652 -> next(tank) = tank - 1 ;
+TRANS pump1 = off & pump2 = on & demand =  0 & tank >= 652 & tank < 653 -> next(tank) = tank - 2 ;
+TRANS pump1 = on & pump2 = off & demand =  0  & tank >= 652 & tank < 653 -> next(tank) = tank - 2 ;
+TRANS pump1 = off & pump2 = on & demand =  0 & tank >= 653 & tank < 654 -> next(tank) = tank - 3 ;
+TRANS pump1 = on & pump2 = off & demand =  0  & tank >= 653 & tank < 654 -> next(tank) = tank - 3 ;
+TRANS pump1 = off & pump2 = on & demand =  0 & tank >= 654 & tank < 655 -> next(tank) = tank - 4 ;
+TRANS pump1 = on & pump2 = off & demand =  0  & tank >= 654 & tank < 655 -> next(tank) = tank - 4 ;
+TRANS pump1 = off & pump2 = on & demand =  0 & tank >= 655 & tank < 656 -> next(tank) = tank - 5 ;
+TRANS pump1 = on & pump2 = off & demand =  0  & tank >= 655 & tank < 656 -> next(tank) = tank - 5 ;
+TRANS pump1 = off & pump2 = on & demand =  0 & tank >= 656 & tank < 657 -> next(tank) = tank - 6 ;
+TRANS pump1 = on & pump2 = off & demand =  0  & tank >= 656 & tank < 657 -> next(tank) = tank - 6 ;
+TRANS pump1 = off & pump2 = on & demand =  0 & tank >= 657 & tank < 658 -> next(tank) = tank - 7 ;
+TRANS pump1 = on & pump2 = off & demand =  0  & tank >= 657 & tank < 658 -> next(tank) = tank - 7 ;
+TRANS pump1 = off & pump2 = on & demand =  0 & tank >= 658 & tank < 660 -> next(tank) = tank - 8 ;
+TRANS pump1 = on & pump2 = off & demand =  0  & tank >= 658 & tank < 660 -> next(tank) = tank - 8 ;
+TRANS pump1 = off & pump2 = on & demand =  25 & tank >= 0 & tank < 579 -> next(tank) = tank - -7 ;
+TRANS pump1 = on & pump2 = off & demand =  25  & tank >= 0 & tank < 579 -> next(tank) = tank - -7 ;
+TRANS pump1 = off & pump2 = on & demand =  25 & tank >= 579 & tank < 645 -> next(tank) = tank - -6 ;
+TRANS pump1 = on & pump2 = off & demand =  25  & tank >= 579 & tank < 645 -> next(tank) = tank - -6 ;
+TRANS pump1 = off & pump2 = on & demand =  25 & tank >= 645 & tank < 646 -> next(tank) = tank - -5 ;
+TRANS pump1 = on & pump2 = off & demand =  25  & tank >= 645 & tank < 646 -> next(tank) = tank - -5 ;
+TRANS pump1 = off & pump2 = on & demand =  25 & tank >= 646 & tank < 647 -> next(tank) = tank - -4 ;
+TRANS pump1 = on & pump2 = off & demand =  25  & tank >= 646 & tank < 647 -> next(tank) = tank - -4 ;
+TRANS pump1 = off & pump2 = on & demand =  25 & tank >= 647 & tank < 648 -> next(tank) = tank - -3 ;
+TRANS pump1 = on & pump2 = off & demand =  25  & tank >= 647 & tank < 648 -> next(tank) = tank - -3 ;
+TRANS pump1 = off & pump2 = on & demand =  25 & tank >= 648 & tank < 649 -> next(tank) = tank - -2 ;
+TRANS pump1 = on & pump2 = off & demand =  25  & tank >= 648 & tank < 649 -> next(tank) = tank - -2 ;
+TRANS pump1 = off & pump2 = on & demand =  25 & tank >= 649 & tank < 650 -> next(tank) = tank - -1 ;
+TRANS pump1 = on & pump2 = off & demand =  25  & tank >= 649 & tank < 650 -> next(tank) = tank - -1 ;
+TRANS pump1 = off & pump2 = on & demand =  25 & tank >= 650 & tank < 651 -> next(tank) = tank - 0 ;
+TRANS pump1 = on & pump2 = off & demand =  25  & tank >= 650 & tank < 651 -> next(tank) = tank - 0 ;
+TRANS pump1 = off & pump2 = on & demand =  25 & tank >= 651 & tank < 652 -> next(tank) = tank - 1 ;
+TRANS pump1 = on & pump2 = off & demand =  25  & tank >= 651 & tank < 652 -> next(tank) = tank - 1 ;
+TRANS pump1 = off & pump2 = on & demand =  25 & tank >= 652 & tank < 653 -> next(tank) = tank - 2 ;
+TRANS pump1 = on & pump2 = off & demand =  25  & tank >= 652 & tank < 653 -> next(tank) = tank - 2 ;
+TRANS pump1 = off & pump2 = on & demand =  25 & tank >= 653 & tank < 654 -> next(tank) = tank - 3 ;
+TRANS pump1 = on & pump2 = off & demand =  25  & tank >= 653 & tank < 654 -> next(tank) = tank - 3 ;
+TRANS pump1 = off & pump2 = on & demand =  25 & tank >= 654 & tank < 655 -> next(tank) = tank - 4 ;
+TRANS pump1 = on & pump2 = off & demand =  25  & tank >= 654 & tank < 655 -> next(tank) = tank - 4 ;
+TRANS pump1 = off & pump2 = on & demand =  25 & tank >= 655 & tank < 656 -> next(tank) = tank - 5 ;
+TRANS pump1 = on & pump2 = off & demand =  25  & tank >= 655 & tank < 656 -> next(tank) = tank - 5 ;
+TRANS pump1 = off & pump2 = on & demand =  25 & tank >= 656 & tank < 657 -> next(tank) = tank - 6 ;
+TRANS pump1 = on & pump2 = off & demand =  25  & tank >= 656 & tank < 657 -> next(tank) = tank - 6 ;
+TRANS pump1 = off & pump2 = on & demand =  25 & tank >= 657 & tank < 658 -> next(tank) = tank - 7 ;
+TRANS pump1 = on & pump2 = off & demand =  25  & tank >= 657 & tank < 658 -> next(tank) = tank - 7 ;
+TRANS pump1 = off & pump2 = on & demand =  25 & tank >= 658 & tank < 660 -> next(tank) = tank - 8 ;
+TRANS pump1 = on & pump2 = off & demand =  25  & tank >= 658 & tank < 660 -> next(tank) = tank - 8 ;
+TRANS pump1 = off & pump2 = on & demand =  50 & tank >= 0 & tank < 18 -> next(tank) = tank - -2 ;
+TRANS pump1 = on & pump2 = off & demand =  50  & tank >= 0 & tank < 18 -> next(tank) = tank - -2 ;
+TRANS pump1 = off & pump2 = on & demand =  50 & tank >= 18 & tank < 650 -> next(tank) = tank - -1 ;
+TRANS pump1 = on & pump2 = off & demand =  50  & tank >= 18 & tank < 650 -> next(tank) = tank - -1 ;
+TRANS pump1 = off & pump2 = on & demand =  50 & tank >= 650 & tank < 651 -> next(tank) = tank - 0 ;
+TRANS pump1 = on & pump2 = off & demand =  50  & tank >= 650 & tank < 651 -> next(tank) = tank - 0 ;
+TRANS pump1 = off & pump2 = on & demand =  50 & tank >= 651 & tank < 652 -> next(tank) = tank - 1 ;
+TRANS pump1 = on & pump2 = off & demand =  50  & tank >= 651 & tank < 652 -> next(tank) = tank - 1 ;
+TRANS pump1 = off & pump2 = on & demand =  50 & tank >= 652 & tank < 653 -> next(tank) = tank - 2 ;
+TRANS pump1 = on & pump2 = off & demand =  50  & tank >= 652 & tank < 653 -> next(tank) = tank - 2 ;
+TRANS pump1 = off & pump2 = on & demand =  50 & tank >= 653 & tank < 654 -> next(tank) = tank - 3 ;
+TRANS pump1 = on & pump2 = off & demand =  50  & tank >= 653 & tank < 654 -> next(tank) = tank - 3 ;
+TRANS pump1 = off & pump2 = on & demand =  50 & tank >= 654 & tank < 655 -> next(tank) = tank - 4 ;
+TRANS pump1 = on & pump2 = off & demand =  50  & tank >= 654 & tank < 655 -> next(tank) = tank - 4 ;
+TRANS pump1 = off & pump2 = on & demand =  50 & tank >= 655 & tank < 656 -> next(tank) = tank - 5 ;
+TRANS pump1 = on & pump2 = off & demand =  50  & tank >= 655 & tank < 656 -> next(tank) = tank - 5 ;
+TRANS pump1 = off & pump2 = on & demand =  50 & tank >= 656 & tank < 657 -> next(tank) = tank - 6 ;
+TRANS pump1 = on & pump2 = off & demand =  50  & tank >= 656 & tank < 657 -> next(tank) = tank - 6 ;
+TRANS pump1 = off & pump2 = on & demand =  50 & tank >= 657 & tank < 658 -> next(tank) = tank - 7 ;
+TRANS pump1 = on & pump2 = off & demand =  50  & tank >= 657 & tank < 658 -> next(tank) = tank - 7 ;
+TRANS pump1 = off & pump2 = on & demand =  50 & tank >= 658 & tank < 660 -> next(tank) = tank - 8 ;
+TRANS pump1 = on & pump2 = off & demand =  50  & tank >= 658 & tank < 660 -> next(tank) = tank - 8 ;
+TRANS pump1 = off & pump2 = on & demand =  75 & tank >= 0 & tank < 1 -> next(tank) = tank - 0 ;
+TRANS pump1 = on & pump2 = off & demand =  75  & tank >= 0 & tank < 1 -> next(tank) = tank - 0 ;
+TRANS pump1 = off & pump2 = on & demand =  75 & tank >= 1 & tank < 2 -> next(tank) = tank - 1 ;
+TRANS pump1 = on & pump2 = off & demand =  75  & tank >= 1 & tank < 2 -> next(tank) = tank - 1 ;
+TRANS pump1 = off & pump2 = on & demand =  75 & tank >= 2 & tank < 3 -> next(tank) = tank - 2 ;
+TRANS pump1 = on & pump2 = off & demand =  75  & tank >= 2 & tank < 3 -> next(tank) = tank - 2 ;
+TRANS pump1 = off & pump2 = on & demand =  75 & tank >= 3 & tank < 4 -> next(tank) = tank - 3 ;
+TRANS pump1 = on & pump2 = off & demand =  75  & tank >= 3 & tank < 4 -> next(tank) = tank - 3 ;
+TRANS pump1 = off & pump2 = on & demand =  75 & tank >= 4 & tank < 91 -> next(tank) = tank - 4 ;
+TRANS pump1 = on & pump2 = off & demand =  75  & tank >= 4 & tank < 91 -> next(tank) = tank - 4 ;
+TRANS pump1 = off & pump2 = on & demand =  75 & tank >= 91 & tank < 656 -> next(tank) = tank - 5 ;
+TRANS pump1 = on & pump2 = off & demand =  75  & tank >= 91 & tank < 656 -> next(tank) = tank - 5 ;
+TRANS pump1 = off & pump2 = on & demand =  75 & tank >= 656 & tank < 657 -> next(tank) = tank - 6 ;
+TRANS pump1 = on & pump2 = off & demand =  75  & tank >= 656 & tank < 657 -> next(tank) = tank - 6 ;
+TRANS pump1 = off & pump2 = on & demand =  75 & tank >= 657 & tank < 658 -> next(tank) = tank - 7 ;
+TRANS pump1 = on & pump2 = off & demand =  75  & tank >= 657 & tank < 658 -> next(tank) = tank - 7 ;
+TRANS pump1 = off & pump2 = on & demand =  75 & tank >= 658 & tank < 660 -> next(tank) = tank - 8 ;
+TRANS pump1 = on & pump2 = off & demand =  75  & tank >= 658 & tank < 660 -> next(tank) = tank - 8 ;
+TRANS pump1 = off & pump2 = on & demand =  100 & tank >= 0 & tank < 1 -> next(tank) = tank - 0 ;
+TRANS pump1 = on & pump2 = off & demand =  100  & tank >= 0 & tank < 1 -> next(tank) = tank - 0 ;
+TRANS pump1 = off & pump2 = on & demand =  100 & tank >= 1 & tank < 2 -> next(tank) = tank - 1 ;
+TRANS pump1 = on & pump2 = off & demand =  100  & tank >= 1 & tank < 2 -> next(tank) = tank - 1 ;
+TRANS pump1 = off & pump2 = on & demand =  100 & tank >= 2 & tank < 3 -> next(tank) = tank - 2 ;
+TRANS pump1 = on & pump2 = off & demand =  100  & tank >= 2 & tank < 3 -> next(tank) = tank - 2 ;
+TRANS pump1 = off & pump2 = on & demand =  100 & tank >= 3 & tank < 4 -> next(tank) = tank - 3 ;
+TRANS pump1 = on & pump2 = off & demand =  100  & tank >= 3 & tank < 4 -> next(tank) = tank - 3 ;
+TRANS pump1 = off & pump2 = on & demand =  100 & tank >= 4 & tank < 5 -> next(tank) = tank - 4 ;
+TRANS pump1 = on & pump2 = off & demand =  100  & tank >= 4 & tank < 5 -> next(tank) = tank - 4 ;
+TRANS pump1 = off & pump2 = on & demand =  100 & tank >= 5 & tank < 6 -> next(tank) = tank - 5 ;
+TRANS pump1 = on & pump2 = off & demand =  100  & tank >= 5 & tank < 6 -> next(tank) = tank - 5 ;
+TRANS pump1 = off & pump2 = on & demand =  100 & tank >= 6 & tank < 7 -> next(tank) = tank - 6 ;
+TRANS pump1 = on & pump2 = off & demand =  100  & tank >= 6 & tank < 7 -> next(tank) = tank - 6 ;
+TRANS pump1 = off & pump2 = on & demand =  100 & tank >= 7 & tank < 8 -> next(tank) = tank - 7 ;
+TRANS pump1 = on & pump2 = off & demand =  100  & tank >= 7 & tank < 8 -> next(tank) = tank - 7 ;
+TRANS pump1 = off & pump2 = on & demand =  100 & tank >= 8 & tank < 9 -> next(tank) = tank - 8 ;
+TRANS pump1 = on & pump2 = off & demand =  100  & tank >= 8 & tank < 9 -> next(tank) = tank - 8 ;
+TRANS pump1 = off & pump2 = on & demand =  100 & tank >= 9 & tank < 10 -> next(tank) = tank - 9 ;
+TRANS pump1 = on & pump2 = off & demand =  100  & tank >= 9 & tank < 10 -> next(tank) = tank - 9 ;
+TRANS pump1 = off & pump2 = on & demand =  100 & tank >= 10 & tank < 164 -> next(tank) = tank - 10 ;
+TRANS pump1 = on & pump2 = off & demand =  100  & tank >= 10 & tank < 164 -> next(tank) = tank - 10 ;
+TRANS pump1 = off & pump2 = on & demand =  100 & tank >= 164 & tank < 660 -> next(tank) = tank - 11 ;
+TRANS pump1 = on & pump2 = off & demand =  100  & tank >= 164 & tank < 660 -> next(tank) = tank - 11 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 0 & tank < 286 -> next(tank) = tank - -21 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 286 & tank < 631 -> next(tank) = tank - -20 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 631 & tank < 632 -> next(tank) = tank - -19 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 632 & tank < 633 -> next(tank) = tank - -18 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 633 & tank < 634 -> next(tank) = tank - -17 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 634 & tank < 635 -> next(tank) = tank - -16 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 635 & tank < 636 -> next(tank) = tank - -15 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 636 & tank < 637 -> next(tank) = tank - -14 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 637 & tank < 638 -> next(tank) = tank - -13 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 638 & tank < 639 -> next(tank) = tank - -12 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 639 & tank < 640 -> next(tank) = tank - -11 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 640 & tank < 641 -> next(tank) = tank - -10 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 641 & tank < 642 -> next(tank) = tank - -9 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 642 & tank < 643 -> next(tank) = tank - -8 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 643 & tank < 644 -> next(tank) = tank - -7 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 644 & tank < 645 -> next(tank) = tank - -6 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 645 & tank < 646 -> next(tank) = tank - -5 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 646 & tank < 647 -> next(tank) = tank - -4 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 647 & tank < 648 -> next(tank) = tank - -3 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 648 & tank < 649 -> next(tank) = tank - -2 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 649 & tank < 650 -> next(tank) = tank - -1 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 650 & tank < 651 -> next(tank) = tank - 0 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 651 & tank < 652 -> next(tank) = tank - 1 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 652 & tank < 653 -> next(tank) = tank - 2 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 653 & tank < 654 -> next(tank) = tank - 3 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 654 & tank < 655 -> next(tank) = tank - 4 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 655 & tank < 656 -> next(tank) = tank - 5 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 656 & tank < 657 -> next(tank) = tank - 6 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 657 & tank < 658 -> next(tank) = tank - 7 ;
+TRANS pump1 = on & pump2 = on & demand = 0  & tank >= 658 & tank < 660 -> next(tank) = tank - 8 ;
+TRANS pump1 = on & pump2 = on & demand = 25  & tank >= 0 & tank < 71 -> next(tank) = tank - -16 ;
+TRANS pump1 = on & pump2 = on & demand = 25  & tank >= 71 & tank < 466 -> next(tank) = tank - -15 ;
+TRANS pump1 = on & pump2 = on & demand = 25  & tank >= 466 & tank < 637 -> next(tank) = tank - -14 ;
+TRANS pump1 = on & pump2 = on & demand = 25  & tank >= 637 & tank < 638 -> next(tank) = tank - -13 ;
+TRANS pump1 = on & pump2 = on & demand = 25  & tank >= 638 & tank < 639 -> next(tank) = tank - -12 ;
+TRANS pump1 = on & pump2 = on & demand = 25  & tank >= 639 & tank < 640 -> next(tank) = tank - -11 ;
+TRANS pump1 = on & pump2 = on & demand = 25  & tank >= 640 & tank < 641 -> next(tank) = tank - -10 ;
+TRANS pump1 = on & pump2 = on & demand = 25  & tank >= 641 & tank < 642 -> next(tank) = tank - -9 ;
+TRANS pump1 = on & pump2 = on & demand = 25  & tank >= 642 & tank < 643 -> next(tank) = tank - -8 ;
+TRANS pump1 = on & pump2 = on & demand = 25  & tank >= 643 & tank < 644 -> next(tank) = tank - -7 ;
+TRANS pump1 = on & pump2 = on & demand = 25  & tank >= 644 & tank < 645 -> next(tank) = tank - -6 ;
+TRANS pump1 = on & pump2 = on & demand = 25  & tank >= 645 & tank < 646 -> next(tank) = tank - -5 ;
+TRANS pump1 = on & pump2 = on & demand = 25  & tank >= 646 & tank < 647 -> next(tank) = tank - -4 ;
+TRANS pump1 = on & pump2 = on & demand = 25  & tank >= 647 & tank < 648 -> next(tank) = tank - -3 ;
+TRANS pump1 = on & pump2 = on & demand = 25  & tank >= 648 & tank < 649 -> next(tank) = tank - -2 ;
+TRANS pump1 = on & pump2 = on & demand = 25  & tank >= 649 & tank < 650 -> next(tank) = tank - -1 ;
+TRANS pump1 = on & pump2 = on & demand = 25  & tank >= 650 & tank < 651 -> next(tank) = tank - 0 ;
+TRANS pump1 = on & pump2 = on & demand = 25  & tank >= 651 & tank < 652 -> next(tank) = tank - 1 ;
+TRANS pump1 = on & pump2 = on & demand = 25  & tank >= 652 & tank < 653 -> next(tank) = tank - 2 ;
+TRANS pump1 = on & pump2 = on & demand = 25  & tank >= 653 & tank < 654 -> next(tank) = tank - 3 ;
+TRANS pump1 = on & pump2 = on & demand = 25  & tank >= 654 & tank < 655 -> next(tank) = tank - 4 ;
+TRANS pump1 = on & pump2 = on & demand = 25  & tank >= 655 & tank < 656 -> next(tank) = tank - 5 ;
+TRANS pump1 = on & pump2 = on & demand = 25  & tank >= 656 & tank < 657 -> next(tank) = tank - 6 ;
+TRANS pump1 = on & pump2 = on & demand = 25  & tank >= 657 & tank < 658 -> next(tank) = tank - 7 ;
+TRANS pump1 = on & pump2 = on & demand = 25  & tank >= 658 & tank < 660 -> next(tank) = tank - 8 ;
+TRANS pump1 = on & pump2 = on & demand = 50  & tank >= 0 & tank < 250 -> next(tank) = tank - -10 ;
+TRANS pump1 = on & pump2 = on & demand = 50  & tank >= 250 & tank < 642 -> next(tank) = tank - -9 ;
+TRANS pump1 = on & pump2 = on & demand = 50  & tank >= 642 & tank < 643 -> next(tank) = tank - -8 ;
+TRANS pump1 = on & pump2 = on & demand = 50  & tank >= 643 & tank < 644 -> next(tank) = tank - -7 ;
+TRANS pump1 = on & pump2 = on & demand = 50  & tank >= 644 & tank < 645 -> next(tank) = tank - -6 ;
+TRANS pump1 = on & pump2 = on & demand = 50  & tank >= 645 & tank < 646 -> next(tank) = tank - -5 ;
+TRANS pump1 = on & pump2 = on & demand = 50  & tank >= 646 & tank < 647 -> next(tank) = tank - -4 ;
+TRANS pump1 = on & pump2 = on & demand = 50  & tank >= 647 & tank < 648 -> next(tank) = tank - -3 ;
+TRANS pump1 = on & pump2 = on & demand = 50  & tank >= 648 & tank < 649 -> next(tank) = tank - -2 ;
+TRANS pump1 = on & pump2 = on & demand = 50  & tank >= 649 & tank < 650 -> next(tank) = tank - -1 ;
+TRANS pump1 = on & pump2 = on & demand = 50  & tank >= 650 & tank < 651 -> next(tank) = tank - 0 ;
+TRANS pump1 = on & pump2 = on & demand = 50  & tank >= 651 & tank < 652 -> next(tank) = tank - 1 ;
+TRANS pump1 = on & pump2 = on & demand = 50  & tank >= 652 & tank < 653 -> next(tank) = tank - 2 ;
+TRANS pump1 = on & pump2 = on & demand = 50  & tank >= 653 & tank < 654 -> next(tank) = tank - 3 ;
+TRANS pump1 = on & pump2 = on & demand = 50  & tank >= 654 & tank < 655 -> next(tank) = tank - 4 ;
+TRANS pump1 = on & pump2 = on & demand = 50  & tank >= 655 & tank < 656 -> next(tank) = tank - 5 ;
+TRANS pump1 = on & pump2 = on & demand = 50  & tank >= 656 & tank < 657 -> next(tank) = tank - 6 ;
+TRANS pump1 = on & pump2 = on & demand = 50  & tank >= 657 & tank < 658 -> next(tank) = tank - 7 ;
+TRANS pump1 = on & pump2 = on & demand = 50  & tank >= 658 & tank < 660 -> next(tank) = tank - 8 ;
+TRANS pump1 = on & pump2 = on & demand = 75  & tank >= 0 & tank < 35 -> next(tank) = tank - -5 ;
+TRANS pump1 = on & pump2 = on & demand = 75  & tank >= 35 & tank < 430 -> next(tank) = tank - -4 ;
+TRANS pump1 = on & pump2 = on & demand = 75  & tank >= 430 & tank < 648 -> next(tank) = tank - -3 ;
+TRANS pump1 = on & pump2 = on & demand = 75  & tank >= 648 & tank < 649 -> next(tank) = tank - -2 ;
+TRANS pump1 = on & pump2 = on & demand = 75  & tank >= 649 & tank < 650 -> next(tank) = tank - -1 ;
+TRANS pump1 = on & pump2 = on & demand = 75  & tank >= 650 & tank < 651 -> next(tank) = tank - 0 ;
+TRANS pump1 = on & pump2 = on & demand = 75  & tank >= 651 & tank < 652 -> next(tank) = tank - 1 ;
+TRANS pump1 = on & pump2 = on & demand = 75  & tank >= 652 & tank < 653 -> next(tank) = tank - 2 ;
+TRANS pump1 = on & pump2 = on & demand = 75  & tank >= 653 & tank < 654 -> next(tank) = tank - 3 ;
+TRANS pump1 = on & pump2 = on & demand = 75  & tank >= 654 & tank < 655 -> next(tank) = tank - 4 ;
+TRANS pump1 = on & pump2 = on & demand = 75  & tank >= 655 & tank < 656 -> next(tank) = tank - 5 ;
+TRANS pump1 = on & pump2 = on & demand = 75  & tank >= 656 & tank < 657 -> next(tank) = tank - 6 ;
+TRANS pump1 = on & pump2 = on & demand = 75  & tank >= 657 & tank < 658 -> next(tank) = tank - 7 ;
+TRANS pump1 = on & pump2 = on & demand = 75  & tank >= 658 & tank < 660 -> next(tank) = tank - 8 ;
+TRANS pump1 = on & pump2 = on & demand = 100  & tank >= 0 & tank < 1 -> next(tank) = tank - 0 ;
+TRANS pump1 = on & pump2 = on & demand = 100  & tank >= 1 & tank < 214 -> next(tank) = tank - 1 ;
+TRANS pump1 = on & pump2 = on & demand = 100  & tank >= 214 & tank < 610 -> next(tank) = tank - 2 ;
+TRANS pump1 = on & pump2 = on & demand = 100  & tank >= 610 & tank < 654 -> next(tank) = tank - 3 ;
+TRANS pump1 = on & pump2 = on & demand = 100  & tank >= 654 & tank < 655 -> next(tank) = tank - 4 ;
+TRANS pump1 = on & pump2 = on & demand = 100  & tank >= 655 & tank < 656 -> next(tank) = tank - 5 ;
+TRANS pump1 = on & pump2 = on & demand = 100  & tank >= 656 & tank < 657 -> next(tank) = tank - 6 ;
+TRANS pump1 = on & pump2 = on & demand = 100  & tank >= 657 & tank < 658 -> next(tank) = tank - 7 ;
+TRANS pump1 = on & pump2 = on & demand = 100  & tank >= 658 & tank < 660 -> next(tank) = tank - 8 ;
+TRANS pump1 = off & pump2 = off & demand = 0 & tank >= 0 & tank < 651 -> next(tank) = tank - 0 ;
+TRANS pump1 = off & pump2 = off & demand = 0 & tank >= 651 & tank < 652 -> next(tank) = tank - 1 ;
+TRANS pump1 = off & pump2 = off & demand = 0 & tank >= 652 & tank < 653 -> next(tank) = tank - 2 ;
+TRANS pump1 = off & pump2 = off & demand = 0 & tank >= 653 & tank < 654 -> next(tank) = tank - 3 ;
+TRANS pump1 = off & pump2 = off & demand = 0 & tank >= 654 & tank < 655 -> next(tank) = tank - 4 ;
+TRANS pump1 = off & pump2 = off & demand = 0 & tank >= 655 & tank < 656 -> next(tank) = tank - 5 ;
+TRANS pump1 = off & pump2 = off & demand = 0 & tank >= 656 & tank < 657 -> next(tank) = tank - 6 ;
+TRANS pump1 = off & pump2 = off & demand = 0 & tank >= 657 & tank < 658 -> next(tank) = tank - 7 ;
+TRANS pump1 = off & pump2 = off & demand = 0 & tank >= 658 & tank < 660 -> next(tank) = tank - 8 ;
+TRANS pump1 = off & pump2 = off & demand = 25 & tank >= 0 & tank < 1 -> next(tank) = tank - 0 ;
+TRANS pump1 = off & pump2 = off & demand = 25 & tank >= 1 & tank < 2 -> next(tank) = tank - 1 ;
+TRANS pump1 = off & pump2 = off & demand = 25 & tank >= 2 & tank < 3 -> next(tank) = tank - 2 ;
+TRANS pump1 = off & pump2 = off & demand = 25 & tank >= 3 & tank < 4 -> next(tank) = tank - 3 ;
+TRANS pump1 = off & pump2 = off & demand = 25 & tank >= 4 & tank < 5 -> next(tank) = tank - 4 ;
+TRANS pump1 = off & pump2 = off & demand = 25 & tank >= 5 & tank < 6 -> next(tank) = tank - 5 ;
+TRANS pump1 = off & pump2 = off & demand = 25 & tank >= 6 & tank < 657 -> next(tank) = tank - 6 ;
+TRANS pump1 = off & pump2 = off & demand = 25 & tank >= 657 & tank < 658 -> next(tank) = tank - 7 ;
+TRANS pump1 = off & pump2 = off & demand = 25 & tank >= 658 & tank < 660 -> next(tank) = tank - 8 ;
+TRANS pump1 = off & pump2 = off & demand = 50 & tank >= 0 & tank < 1 -> next(tank) = tank - 0 ;
+TRANS pump1 = off & pump2 = off & demand = 50 & tank >= 1 & tank < 2 -> next(tank) = tank - 1 ;
+TRANS pump1 = off & pump2 = off & demand = 50 & tank >= 2 & tank < 3 -> next(tank) = tank - 2 ;
+TRANS pump1 = off & pump2 = off & demand = 50 & tank >= 3 & tank < 4 -> next(tank) = tank - 3 ;
+TRANS pump1 = off & pump2 = off & demand = 50 & tank >= 4 & tank < 5 -> next(tank) = tank - 4 ;
+TRANS pump1 = off & pump2 = off & demand = 50 & tank >= 5 & tank < 6 -> next(tank) = tank - 5 ;
+TRANS pump1 = off & pump2 = off & demand = 50 & tank >= 6 & tank < 7 -> next(tank) = tank - 6 ;
+TRANS pump1 = off & pump2 = off & demand = 50 & tank >= 7 & tank < 8 -> next(tank) = tank - 7 ;
+TRANS pump1 = off & pump2 = off & demand = 50 & tank >= 8 & tank < 9 -> next(tank) = tank - 8 ;
+TRANS pump1 = off & pump2 = off & demand = 50 & tank >= 9 & tank < 10 -> next(tank) = tank - 9 ;
+TRANS pump1 = off & pump2 = off & demand = 50 & tank >= 10 & tank < 11 -> next(tank) = tank - 10 ;
+TRANS pump1 = off & pump2 = off & demand = 50 & tank >= 11 & tank < 12 -> next(tank) = tank - 11 ;
+TRANS pump1 = off & pump2 = off & demand = 50 & tank >= 12 & tank < 660 -> next(tank) = tank - 12 ;
+TRANS pump1 = off & pump2 = off & demand = 75 & tank >= 0 & tank < 1 -> next(tank) = tank - 0 ;
+TRANS pump1 = off & pump2 = off & demand = 75 & tank >= 1 & tank < 2 -> next(tank) = tank - 1 ;
+TRANS pump1 = off & pump2 = off & demand = 75 & tank >= 2 & tank < 3 -> next(tank) = tank - 2 ;
+TRANS pump1 = off & pump2 = off & demand = 75 & tank >= 3 & tank < 4 -> next(tank) = tank - 3 ;
+TRANS pump1 = off & pump2 = off & demand = 75 & tank >= 4 & tank < 5 -> next(tank) = tank - 4 ;
+TRANS pump1 = off & pump2 = off & demand = 75 & tank >= 5 & tank < 6 -> next(tank) = tank - 5 ;
+TRANS pump1 = off & pump2 = off & demand = 75 & tank >= 6 & tank < 7 -> next(tank) = tank - 6 ;
+TRANS pump1 = off & pump2 = off & demand = 75 & tank >= 7 & tank < 8 -> next(tank) = tank - 7 ;
+TRANS pump1 = off & pump2 = off & demand = 75 & tank >= 8 & tank < 9 -> next(tank) = tank - 8 ;
+TRANS pump1 = off & pump2 = off & demand = 75 & tank >= 9 & tank < 10 -> next(tank) = tank - 9 ;
+TRANS pump1 = off & pump2 = off & demand = 75 & tank >= 10 & tank < 11 -> next(tank) = tank - 10 ;
+TRANS pump1 = off & pump2 = off & demand = 75 & tank >= 11 & tank < 12 -> next(tank) = tank - 11 ;
+TRANS pump1 = off & pump2 = off & demand = 75 & tank >= 12 & tank < 13 -> next(tank) = tank - 12 ;
+TRANS pump1 = off & pump2 = off & demand = 75 & tank >= 13 & tank < 14 -> next(tank) = tank - 13 ;
+TRANS pump1 = off & pump2 = off & demand = 75 & tank >= 14 & tank < 15 -> next(tank) = tank - 14 ;
+TRANS pump1 = off & pump2 = off & demand = 75 & tank >= 15 & tank < 16 -> next(tank) = tank - 15 ;
+TRANS pump1 = off & pump2 = off & demand = 75 & tank >= 16 & tank < 17 -> next(tank) = tank - 16 ;
+TRANS pump1 = off & pump2 = off & demand = 75 & tank >= 17 & tank < 18 -> next(tank) = tank - 17 ;
+TRANS pump1 = off & pump2 = off & demand = 75 & tank >= 18 & tank < 660 -> next(tank) = tank - 18 ;
+TRANS pump1 = off & pump2 = off & demand = 100 & tank >= 0 & tank < 1 -> next(tank) = tank - 0 ;
+TRANS pump1 = off & pump2 = off & demand = 100 & tank >= 1 & tank < 2 -> next(tank) = tank - 1 ;
+TRANS pump1 = off & pump2 = off & demand = 100 & tank >= 2 & tank < 3 -> next(tank) = tank - 2 ;
+TRANS pump1 = off & pump2 = off & demand = 100 & tank >= 3 & tank < 4 -> next(tank) = tank - 3 ;
+TRANS pump1 = off & pump2 = off & demand = 100 & tank >= 4 & tank < 5 -> next(tank) = tank - 4 ;
+TRANS pump1 = off & pump2 = off & demand = 100 & tank >= 5 & tank < 6 -> next(tank) = tank - 5 ;
+TRANS pump1 = off & pump2 = off & demand = 100 & tank >= 6 & tank < 7 -> next(tank) = tank - 6 ;
+TRANS pump1 = off & pump2 = off & demand = 100 & tank >= 7 & tank < 8 -> next(tank) = tank - 7 ;
+TRANS pump1 = off & pump2 = off & demand = 100 & tank >= 8 & tank < 9 -> next(tank) = tank - 8 ;
+TRANS pump1 = off & pump2 = off & demand = 100 & tank >= 9 & tank < 10 -> next(tank) = tank - 9 ;
+TRANS pump1 = off & pump2 = off & demand = 100 & tank >= 10 & tank < 11 -> next(tank) = tank - 10 ;
+TRANS pump1 = off & pump2 = off & demand = 100 & tank >= 11 & tank < 12 -> next(tank) = tank - 11 ;
+TRANS pump1 = off & pump2 = off & demand = 100 & tank >= 12 & tank < 13 -> next(tank) = tank - 12 ;
+TRANS pump1 = off & pump2 = off & demand = 100 & tank >= 13 & tank < 14 -> next(tank) = tank - 13 ;
+TRANS pump1 = off & pump2 = off & demand = 100 & tank >= 14 & tank < 15 -> next(tank) = tank - 14 ;
+TRANS pump1 = off & pump2 = off & demand = 100 & tank >= 15 & tank < 16 -> next(tank) = tank - 15 ;
+TRANS pump1 = off & pump2 = off & demand = 100 & tank >= 16 & tank < 17 -> next(tank) = tank - 16 ;
+TRANS pump1 = off & pump2 = off & demand = 100 & tank >= 17 & tank < 18 -> next(tank) = tank - 17 ;
+TRANS pump1 = off & pump2 = off & demand = 100 & tank >= 18 & tank < 19 -> next(tank) = tank - 18 ;
+TRANS pump1 = off & pump2 = off & demand = 100 & tank >= 19 & tank < 20 -> next(tank) = tank - 19 ;
+TRANS pump1 = off & pump2 = off & demand = 100 & tank >= 20 & tank < 21 -> next(tank) = tank - 20 ;
+TRANS pump1 = off & pump2 = off & demand = 100 & tank >= 21 & tank < 22 -> next(tank) = tank - 21 ;
+TRANS pump1 = off & pump2 = off & demand = 100 & tank >= 22 & tank < 23 -> next(tank) = tank - 22 ;
+TRANS pump1 = off & pump2 = off & demand = 100 & tank >= 23 & tank < 24 -> next(tank) = tank - 23 ;
+TRANS pump1 = off & pump2 = off & demand = 100 & tank >= 24 & tank < 660 -> next(tank) = tank - 24 ;
+
+
+LTLSPEC G (time <= 170 -> tank <= 550); -- 0
+LTLSPEC G (time <= 170 -> tank <= 600); -- 1
+LTLSPEC G (time <= 170 -> tank <= 650); -- 2
+
+LTLSPEC G (time <= 170 -> tank >= 300); -- 3
+LTLSPEC G (time <= 170 -> tank >= 200); -- 4
+LTLSPEC G (time <= 170 -> tank >= 100); -- 5
+LTLSPEC G (time <= 170 -> tank >= 25); -- 6
+
+
