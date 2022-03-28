@@ -34,6 +34,7 @@ VAR
   falseRead: {active,waiting};
 --  attackTime: {25,50,75,100,125,150,175,200};
   attackTime: 5..150;
+  reading:{640,460,300,50};
 
 ASSIGN
 
@@ -52,6 +53,7 @@ next(pump1) := next(actuator1);
 next(pump2) := next(actuator2);
 
 next(attackTime) := attackTime;
+next(reading) := reading;
 
 next(actuator1) := case
 
@@ -69,7 +71,7 @@ esac;
 
 next(tankSensor) := case
 	
-	falseRead = active: 640;
+	falseRead = active: reading;
 	TRUE: next(tank);
 esac;
 
@@ -587,5 +589,6 @@ LTLSPEC G (time <= 170 -> tank >= 300); -- 3
 LTLSPEC G (time <= 170 -> tank >= 200); -- 4
 LTLSPEC G (time <= 170 -> tank >= 100); -- 5
 LTLSPEC G (time <= 170 -> tank >= 25); -- 6
+LTLSPEC G (time <= 170 -> tank >= 10); -- 7
 
 
