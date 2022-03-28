@@ -9,13 +9,17 @@ import re
 import matplotlib.pyplot as plt
 import numpy as np
 
+
+
 '''
 Specs to check:
 
+Does tank ever go above...:
 LTLSPEC G (time <= 170 -> tank <= 550); -- 0
 LTLSPEC G (time <= 170 -> tank <= 600); -- 1
 LTLSPEC G (time <= 170 -> tank <= 650); -- 2
 
+Does tank ever go below ...:
 LTLSPEC G (time <= 170 -> tank >= 300); -- 3
 LTLSPEC G (time <= 170 -> tank >= 200); -- 4
 LTLSPEC G (time <= 170 -> tank >= 100); -- 5
@@ -30,7 +34,7 @@ os.chdir('NuXmv Models')
 
 # launch nuxmv and save counterexample trace down
 print("Launching NuXmv - This may take a minute")
-nuxmv = sp.Popen('nuxmv -n 3  CyberFalseFinite.smv ',stdout=sp.PIPE,universal_newlines=True)
+nuxmv = sp.Popen('nuxmv -n 7  CyberFalseFinite.smv ',stdout=sp.PIPE,universal_newlines=True)
 output = nuxmv.stdout.read()
 
 # get a list of states
@@ -82,3 +86,6 @@ if len(tanks) != 0:
 else:
     print("No Counterexample Found") 
 
+# todo: add some way to choose or monitor current state 
+#  ask user when they want to run the model check with nuxmv 
+# encapsulate stuff into functions/ clean this up
