@@ -1,0 +1,1 @@
+read_model -i RealDemPattern.smv ; set msat_dump_frac_as_float 1; go_msat ;msat_pick_state; msat_simulate -v -k 170; quit

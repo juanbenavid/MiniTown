@@ -7,6 +7,21 @@ import math
 # Equations we got through
 # hardy cross and EPAnet regressions:
 
+'''
+pumpFlow0 := 0;
+pumpFlow1 := 113.699 + 6.735*demand - 1.35* (tank/100);
+pumpFlow2 := 181.44 + 18.356*demand - 2.1*(tank/100);
+
+tankFlow0 := demand * 246 - pumpFlow0;
+tankFlow1 := demand * 246 - pumpFlow1;
+tankFlow2 := demand * 246 - pumpFlow2;
+
+dT0 := tankFlow0 * 0.004678 *100;
+dT1 := tankFlow1 * 0.004678 *100;
+dT2 := tankFlow2 * 0.004678 *100;
+
+'''
+
 def PumpFlow(tankLevel,demand,pumps):
     if pumps == 1.0:
         return (113.699 + 6.735*demand) - 1.35*tankLevel
@@ -18,7 +33,7 @@ def PumpFlow(tankLevel,demand,pumps):
 # Change in water tank height from flow:
 
 def DWL(q,r):
-    v = q * 3600/4      # /4 = 15 mins
+    v = q * 3600      # /4 = 15 mins
     return v/math.pi/(r**2)/1000
 
 tank_dia = 31.3
@@ -38,7 +53,7 @@ def disc_rels():
         rels_dic[0.0][i] = {}
         for j in np.arange(0,660)/100:
                 for p in [0.0,1.0,2.0]: # create subdicitonaries for each tank level (arbitrary increments)
-                    tq = i * 208 - PumpFlow(j,i,p)
+                    tq = i * 246 - PumpFlow(j,i,p)
                     dh = round(DWL(tq,tank_rad),2)
                     if j - dh < 0:
                         dh = j

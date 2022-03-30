@@ -6,7 +6,7 @@ import wntr.network.controls as controls
 import numpy as np
 import matplotlib.pyplot as plt
 
-minitown = wntr.network.WaterNetworkModel('minitown_juan75.inp')
+minitown = wntr.network.WaterNetworkModel('minitown.inp')
 minitown.options.time.duration = 604800
 tank = minitown.get_node('TANK')
 tank.init_level = 5.0
