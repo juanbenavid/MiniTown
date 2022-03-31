@@ -83,8 +83,8 @@ for check in ['3']:
         #ax.plot(time,sensors,label='tank sensor')
         ax.plot(np.arange(len(groundTruth)),groundTruth*100,label='GroundTruth')
 
-        ax.set(xlabel='time (s)', ylabel='tank height (cm)',
-            title='nuXmv Trace')
+        ax.set(xlabel='time (hrs)', ylabel='tank height (cm)',
+            title='nuXmv Trace Infinite Precision')
         ax.grid()
         ax.legend()
 

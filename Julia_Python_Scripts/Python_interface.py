@@ -83,8 +83,8 @@ for check in ['3']:
         ax.plot(time,sensors,label='tank sensor')
         ax.plot(np.arange(len(groundTruth)),groundTruth*100,label='GroundTruth')
 
-        ax.set(xlabel='time (s)', ylabel='tank height (cm)',
-            title='nuXmv Trace')
+        ax.set(xlabel='time (hrs)', ylabel='tank height (cm)',
+            title='nuXmv Trace Finite Baseline')
         ax.grid()
         ax.legend()
 
@@ -98,7 +98,7 @@ for check in ['3']:
     # encapsulate stuff into functions/ clean this up
 
 
-for check in ['0','7']:
+for check in ['0','5']:
     # launch nuxmv and save counterexample trace down
     print("Launching NuXmv - This may take a minute")
     nuxmv = sp.Popen('nuxmv -n '+check+'  CyberFalseFinite.smv ',stdout=sp.PIPE,universal_newlines=True)
@@ -142,6 +142,7 @@ for check in ['0','7']:
         fig, ax = plt.subplots()
         ax.plot(time, tanks,label = "tank")
         ax.plot(time,sensors,label='tank sensor')
+        ax.plot(np.arange(len(groundTruth)),groundTruth*100,label='GroundTruth (no attack)')
 
         ax.set(xlabel='time (s)', ylabel='tank height (cm)',
             title='nuXmv Trace')

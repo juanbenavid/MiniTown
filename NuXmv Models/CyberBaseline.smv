@@ -32,7 +32,6 @@ VAR
   actuator2: {on,off};
   tankSensor: -10..660;
   falseRead: {active,waiting};
---  attackTime: {25,50,75,100,125,150,175,200};
   attackTime: 180..200;
   reading:{640,460,300,50};
 

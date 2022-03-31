@@ -1,0 +1,335 @@
+-- MiniTown NuXmv Model
+-- Real Variables
+-- Juan Benavides 1/2022
+
+-- run with:
+-- read_model -i RealDemPattern.smv ; go_msat ; msat_check_ltlspec_bmc -k n
+-- where n is number of max bounds you wish to check for
+-- can also just do plain simulation:
+-- read_model -i RealDemPattern.smv ; go_msat ; msat_pick_state ; msat_simulate -v -k n
+
+-- Syntax notes:
+-- := is assignment
+-- = is equality
+-- case blocks are equivalent to if/else statements
+-- : defines a relation ( belonging to a type/set)
+-- -> is implication
+
+MODULE main
+
+-- Define block has static constants or relations that depend on model variables
+-- pumpFlow defines the flow through pump as a function of the current demand and current tank level
+-- tankFlow defines the flow in/out of the tank as a function of the pumpFlow
+-- dT defines the change in tank level as a function of the tankFlow 
+-- 0,1,2 correspond to the pump configuration, as in :
+-- the result of pumpFlow0,tankFlow0,dT0 will be used if both pumps are off
+-- the result of pumpFlow2,tankFlow2,dT2 will be used if both pumps are on
+-- see paper for discussion on where these equations came from
+
+DEFINE
+
+pumpFlow0 := 0;
+pumpFlow1 := 113.699 + 6.735*demand - 1.35* (tank/100);
+pumpFlow2 := 181.44 + 18.356*demand - 2.1*(tank/100);
+
+tankFlow0 := demand * 246 - pumpFlow0;
+tankFlow1 := demand * 246 - pumpFlow1;
+tankFlow2 := demand * 246 - pumpFlow2;
+
+dT0 := tankFlow0 * 0.004678 *100;
+dT1 := tankFlow1 * 0.004678 *100;
+dT2 := tankFlow2 * 0.004678 *100;
+
+-- VAR block defines the model variables
+-- pumps can be either {on,off}
+-- demand is any real number but we will define it between 0 and 1
+-- tank (height) is any real number
+-- time is an unbounded integer that in this case represants hours
+
+VAR
+  pump1  : {on,off};
+  pump2  : {on,off};
+  demand : real;
+  tank   : real;
+  time   : integer;
+
+  actuator1: {on,off};
+  actuator2: {on,off};
+  tankSensor: real;
+  falseRead: {active,waiting};
+  attackTime: 5..150;
+  reading:{640,460,300,50};
+
+-- ASSIGN block defines init and next states for each variable
+-- if an init state is not chosen before simulation, it can be picked at run time with msat_pick_state
+-- if an init state is not chosen before ltl checking, nuXmv will pick a random value
+-- next() statements can be simple assignments like next(time) := time + 1
+-- or next() statements can be case statements that depend on other variables
+-- you can reference the next() of a var when evaluating next() (bascially looking ahead)
+	
+ASSIGN
+
+init(falseRead) := waiting;
+init(tankSensor) := 300;
+init(actuator1) := on;
+init(actuator2) := on;
+
+init(tank) := 300; -- change this as needed
+init(pump1) := on;
+init(pump2) := on;
+init(time) := 0;
+init(demand) := 0.92;
+
+next(pump1) := next(actuator1);
+next(pump2) := next(actuator2);
+
+next(attackTime) := attackTime;
+next(reading) := reading;
+
+next(actuator1) := case
+
+	next(tankSensor) <= 400 : on;
+	next(tankSensor) >= 630 : off;
+	TRUE : actuator1;
+esac;
+
+next(actuator2) := case
+
+	next(tankSensor) <= 100 : on;
+	next(tankSensor) >= 450 : off;
+	TRUE : actuator2;
+esac;
+
+next(tankSensor) := case
+	
+	falseRead = active: reading;
+	TRUE: next(tank);
+esac;
+
+next(falseRead) := case
+
+	time >= attackTime & time <= attackTime +25: active;
+	TRUE: waiting; 
+
+esac;
+
+next(time) := time + 1;
+
+-- pre-determined demand sequence
+
+next(demand) := case
+   next(time) =  0  :  0.92 ;
+   next(time) =  1  :  0.89 ;
+   next(time) =  2  :  0.87 ;
+   next(time) =  3  :  0.68 ;
+   next(time) =  4  :  0.61 ;
+   next(time) =  5  :  0.57 ;
+   next(time) =  6  :  0.66 ;
+   next(time) =  7  :  0.62 ;
+   next(time) =  8  :  0.56 ;
+   next(time) =  9  :  0.72 ;
+   next(time) =  10  :  0.83 ;
+   next(time) =  11  :  0.65 ;
+   next(time) =  12  :  0.63 ;
+   next(time) =  13  :  0.59 ;
+   next(time) =  14  :  0.61 ;
+   next(time) =  15  :  0.6 ;
+   next(time) =  16  :  0.63 ;
+   next(time) =  17  :  0.85 ;
+   next(time) =  18  :  0.94 ;
+   next(time) =  19  :  0.92 ;
+   next(time) =  20  :  0.83 ;
+   next(time) =  21  :  0.77 ;
+   next(time) =  22  :  0.74 ;
+   next(time) =  23  :  0.75 ;
+   next(time) =  24  :  0.79 ;
+   next(time) =  25  :  0.77 ;
+   next(time) =  26  :  0.7 ;
+   next(time) =  27  :  0.66 ;
+   next(time) =  28  :  0.77 ;
+   next(time) =  29  :  0.68 ;
+   next(time) =  30  :  0.71 ;
+   next(time) =  31  :  0.6 ;
+   next(time) =  32  :  0.66 ;
+   next(time) =  33  :  0.84 ;
+   next(time) =  34  :  0.91 ;
+   next(time) =  35  :  0.87 ;
+   next(time) =  36  :  0.87 ;
+   next(time) =  37  :  0.85 ;
+   next(time) =  38  :  0.84 ;
+   next(time) =  39  :  0.83 ;
+   next(time) =  40  :  0.76 ;
+   next(time) =  41  :  0.67 ;
+   next(time) =  42  :  0.54 ;
+   next(time) =  43  :  0.4 ;
+   next(time) =  44  :  0.44 ;
+   next(time) =  45  :  0.53 ;
+   next(time) =  46  :  0.6 ;
+   next(time) =  47  :  0.58 ;
+   next(time) =  48  :  0.59 ;
+   next(time) =  49  :  0.65 ;
+   next(time) =  50  :  0.89 ;
+   next(time) =  51  :  0.79 ;
+   next(time) =  52  :  0.48 ;
+   next(time) =  53  :  0.48 ;
+   next(time) =  54  :  0.63 ;
+   next(time) =  55  :  0.64 ;
+   next(time) =  56  :  0.66 ;
+   next(time) =  57  :  0.68 ;
+   next(time) =  58  :  0.69 ;
+   next(time) =  59  :  0.55 ;
+   next(time) =  60  :  0.57 ;
+   next(time) =  61  :  0.57 ;
+   next(time) =  62  :  0.56 ;
+   next(time) =  63  :  0.54 ;
+   next(time) =  64  :  0.71 ;
+   next(time) =  65  :  0.9 ;
+   next(time) =  66  :  0.71 ;
+   next(time) =  67  :  0.79 ;
+   next(time) =  68  :  0.77 ;
+   next(time) =  69  :  0.82 ;
+   next(time) =  70  :  0.88 ;
+   next(time) =  71  :  0.89 ;
+   next(time) =  72  :  0.88 ;
+   next(time) =  73  :  0.78 ;
+   next(time) =  74  :  0.73 ;
+   next(time) =  75  :  0.67 ;
+   next(time) =  76  :  0.57 ;
+   next(time) =  77  :  0.56 ;
+   next(time) =  78  :  0.51 ;
+   next(time) =  79  :  0.66 ;
+   next(time) =  80  :  0.73 ;
+   next(time) =  81  :  0.82 ;
+   next(time) =  82  :  0.9 ;
+   next(time) =  83  :  0.86 ;
+   next(time) =  84  :  0.86 ;
+   next(time) =  85  :  0.91 ;
+   next(time) =  86  :  0.87 ;
+   next(time) =  87  :  0.85 ;
+   next(time) =  88  :  0.84 ;
+   next(time) =  89  :  0.63 ;
+   next(time) =  90  :  0.62 ;
+   next(time) =  91  :  0.51 ;
+   next(time) =  92  :  0.46 ;
+   next(time) =  93  :  0.57 ;
+   next(time) =  94  :  0.57 ;
+   next(time) =  95  :  0.6 ;
+   next(time) =  96  :  0.53 ;
+   next(time) =  97  :  0.49 ;
+   next(time) =  98  :  0.7 ;
+   next(time) =  99  :  0.71 ;
+   next(time) =  100  :  0.5 ;
+   next(time) =  101  :  0.59 ;
+   next(time) =  102  :  0.7 ;
+   next(time) =  103  :  0.74 ;
+   next(time) =  104  :  0.87 ;
+   next(time) =  105  :  0.96 ;
+   next(time) =  106  :  0.92 ;
+   next(time) =  107  :  0.88 ;
+   next(time) =  108  :  0.71 ;
+   next(time) =  109  :  0.66 ;
+   next(time) =  110  :  0.75 ;
+   next(time) =  111  :  0.47 ;
+   next(time) =  112  :  0.42 ;
+   next(time) =  113  :  0.4 ;
+   next(time) =  114  :  0.43 ;
+   next(time) =  115  :  0.56 ;
+   next(time) =  116  :  0.66 ;
+   next(time) =  117  :  0.63 ;
+   next(time) =  118  :  0.64 ;
+   next(time) =  119  :  0.84 ;
+   next(time) =  120  :  0.93 ;
+   next(time) =  121  :  0.86 ;
+   next(time) =  122  :  0.78 ;
+   next(time) =  123  :  0.64 ;
+   next(time) =  124  :  0.6 ;
+   next(time) =  125  :  0.55 ;
+   next(time) =  126  :  0.51 ;
+   next(time) =  127  :  0.53 ;
+   next(time) =  128  :  0.66 ;
+   next(time) =  129  :  0.77 ;
+   next(time) =  130  :  0.81 ;
+   next(time) =  131  :  0.84 ;
+   next(time) =  132  :  0.86 ;
+   next(time) =  133  :  0.85 ;
+   next(time) =  134  :  0.85 ;
+   next(time) =  135  :  0.79 ;
+   next(time) =  136  :  0.69 ;
+   next(time) =  137  :  0.7 ;
+   next(time) =  138  :  0.69 ;
+   next(time) =  139  :  0.72 ;
+   next(time) =  140  :  0.81 ;
+   next(time) =  141  :  0.93 ;
+   next(time) =  142  :  0.93 ;
+   next(time) =  143  :  0.88 ;
+   next(time) =  144  :  0.87 ;
+   next(time) =  145  :  0.75 ;
+   next(time) =  146  :  0.66 ;
+   next(time) =  147  :  0.56 ;
+   next(time) =  148  :  0.55 ;
+   next(time) =  149  :  0.5 ;
+   next(time) =  150  :  0.33 ;
+   next(time) =  151  :  0.23 ;
+   next(time) =  152  :  0.33 ;
+   next(time) =  153  :  0.61 ;
+   next(time) =  154  :  0.61 ;
+   next(time) =  155  :  0.56 ;
+   next(time) =  156  :  0.59 ;
+   next(time) =  157  :  0.58 ;
+   next(time) =  158  :  0.95 ;
+   next(time) =  159  :  0.91 ;
+   next(time) =  160  :  0.82 ;
+   next(time) =  161  :  0.73 ;
+   next(time) =  162  :  0.65 ;
+   next(time) =  163  :  0.78 ;
+   next(time) =  164  :  0.9 ;
+   next(time) =  165  :  0.95 ;
+   next(time) =  166  :  1.0 ;
+   next(time) =  167  :  0.98 ;
+   next(time) =  168  :  0.61 ;
+   next(time) =  169  :  0.86 ;
+   next(time) =  170  :  0.87 ;
+   TRUE:1;
+esac;
+
+-- INVAR statements can be applied to any variable to constrain their behavior
+-- these are commented out because not needed in current iteration:
+
+
+--INVAR demand = 0.5;
+--INVAR demand = 0 | demand = 0.25 | demand = 0.5 | demand = 0.75 | demand = 1;
+--INVAR demand <= 1;
+--INVAR demand >= 0;
+
+-- TRANS statements are used to describe the transition from state to state
+-- They work in conjuction with the next() statements we assigned above
+-- here we choose which dT to apply depending on pump configuration
+-- read as : this pump configuration Implies this change in tank state
+
+
+TRANS pump1 = off & pump2 = off -> next(tank) = tank - dT0;
+TRANS pump1 = on & pump2 = off -> next(tank) = tank - dT1;
+TRANS pump1 = on & pump2 = on -> next(tank) = tank - dT2;
+TRANS pump1 = off & pump2 = on -> next(tank) = tank - dT1;
+
+-- Can check assertions with LTLSPEC or INVARSPEC
+-- G prefix signifies we want to verifiy the property globally for all states
+-- NuXmv will check all of these when we run the msat_check_ltlspec_bmc command
+
+
+LTLSPEC G (time <= 170 -> tank <= 550); -- 0
+LTLSPEC G (time <= 170 -> tank <= 600); -- 1
+LTLSPEC G (time <= 170 -> tank <= 650); -- 2
+
+LTLSPEC G (time <= 170 -> tank >= 300); -- 3
+LTLSPEC G (time <= 170 -> tank >= 200); -- 4
+LTLSPEC G (time <= 170 -> tank >= 100); -- 5
+LTLSPEC G (time <= 170 -> tank >= 25); -- 6
+LTLSPEC G (time <= 170 -> tank >= 10); -- 7
+
+
+
+
+
+
+
