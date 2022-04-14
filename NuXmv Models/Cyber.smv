@@ -49,7 +49,7 @@ next(pump2) := next(actuator2);
 
 next(attacker) := case
 
-	time < 20: waiting;
+	time < 200: waiting;
 	TRUE: active; 
 
 esac;
