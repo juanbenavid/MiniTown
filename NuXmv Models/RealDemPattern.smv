@@ -65,8 +65,8 @@ ASSIGN
 init(tank) := 300; -- change this as needed
 init(pump1) := on;
 init(pump2) := on;
-init(time) := 0;
-init(demand) := 0.6;
+init(time) := 1;
+init(demand) := 0.92;
 
 next(pump1) := case
 

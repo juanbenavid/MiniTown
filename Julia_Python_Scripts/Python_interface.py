@@ -97,8 +97,10 @@ for check in ['3']:
     #  ask user when they want to run the model check with nuxmv 
     # encapsulate stuff into functions/ clean this up
 
+basetime = time
+basetank = tanks
 
-for check in ['0','5']:
+for check in ['0','4']:
     # launch nuxmv and save counterexample trace down
     print("Launching NuXmv - This may take a minute")
     nuxmv = sp.Popen('nuxmv -n '+check+'  CyberFalseFinite.smv ',stdout=sp.PIPE,universal_newlines=True)
@@ -142,7 +144,7 @@ for check in ['0','5']:
         fig, ax = plt.subplots()
         ax.plot(time, tanks,label = "tank")
         ax.plot(time,sensors,label='tank sensor')
-        ax.plot(np.arange(len(groundTruth)),groundTruth*100,label='GroundTruth (no attack)')
+        ax.plot(basetime,basetank,label='Baseline (no attack)')
 
         ax.set(xlabel='time (s)', ylabel='tank height (cm)',
             title='nuXmv Trace')
