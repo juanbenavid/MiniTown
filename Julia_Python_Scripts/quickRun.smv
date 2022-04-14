@@ -1,0 +1,69 @@
+
+MODULE main
+
+DEFINE
+
+pumpFlow0 := 0;
+pumpFlow1 := 113.699 + 6.735*demand - 1.35* (tank/100);
+pumpFlow2 := 181.44 + 18.356*demand - 2.1*(tank/100);
+
+tankFlow0 := demand * 246 - pumpFlow0;
+tankFlow1 := demand * 246 - pumpFlow1;
+tankFlow2 := demand * 246 - pumpFlow2;
+
+dT0 := tankFlow0 * 0.004678 *100;
+dT1 := tankFlow1 * 0.004678 *100;
+dT2 := tankFlow2 * 0.004678 *100;
+
+
+VAR
+pump1  : {on,off};
+pump2  : {on,off};
+demand : real;
+tank   : real;
+time   : integer;
+
+ASSIGN
+init(time) := 1;
+
+    
+init(tank) :=300; 
+init(pump1) :=on; 
+init(pump2) :=off; 
+
+
+next(pump1) := case
+
+    next(tank) <= 400 : on;
+    next(tank) >= 630: off;
+    TRUE : pump1;
+esac;
+
+next(pump2) := case
+
+    next(tank) <= 100 : on;
+    next(tank) >= 450: off;
+    TRUE : pump2;
+esac;
+
+next(time) := time + 1;
+    
+INVAR demand <= 1;
+INVAR demand >= 0;
+
+TRANS pump1 = off & pump2 = off -> next(tank) = tank - dT0;
+TRANS pump1 = on & pump2 = off -> next(tank) = tank - dT1;
+TRANS pump1 = on & pump2 = on -> next(tank) = tank - dT2;
+TRANS pump1 = off & pump2 = on -> next(tank) = tank - dT1;
+
+LTLSPEC G (time <= 5 -> tank <= 400); -- 0
+LTLSPEC G (time <= 5 -> tank <= 550); -- 1
+LTLSPEC G (time <= 5 -> tank <= 600); -- 2
+LTLSPEC G (time <= 5 -> tank <= 650); -- 3
+
+LTLSPEC G (time <= 5 -> tank >= 300); -- 4
+LTLSPEC G (time <= 5 -> tank >= 200); -- 5
+LTLSPEC G (time <= 5 -> tank >= 100); -- 6
+LTLSPEC G (time <= 5 -> tank >= 25); -- 7
+LTLSPEC G (time <= 5 -> tank >= 10); -- 8
+    
