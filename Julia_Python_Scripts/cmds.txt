@@ -1,1 +1,1 @@
-read_model -i quickRunHacker.smv ; set msat_dump_frac_as_float 1; go_msat ;msat_check_ltlspec_bmc -p " G (time <5 -> tank >=50)";quit
+read_model -i quickRunHacker.smv ; set msat_dump_frac_as_float 1; go_msat ;msat_check_ltlspec_bmc -p " G (time <5 -> tank <=500)";quit

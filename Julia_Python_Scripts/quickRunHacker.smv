@@ -37,12 +37,12 @@ init(falseRead) := waiting;
 init(time) := 0;
 
     
-init(tank) :=300; 
+init(tank) :=200; 
 init(pump1) :=on; 
-init(pump2) :=off; 
-init(tankSensor) :=300; 
+init(pump2) :=on; 
+init(tankSensor) :=200; 
 init(actuator1) :=on; 
-init(actuator2) :=off; 
+init(actuator2) :=on; 
 
 
 next(pump1) := next(actuator1);
