@@ -1,0 +1,137 @@
+//UPPER LIMIT OF STATES
+const M = 2     //pump states
+const J = 3     //demand states
+const H = 7     //tank states
+
+//SET STATES
+range PumpState = 0..M
+range DemandState = 1..J
+range TankState = 1..H
+
+range DeltaTank = -1..1
+range DeltaPump = 0..3
+
+//INITIALIZE STATES
+const A = 1     //initial pump
+const B = 2     //initial demand         
+const C = 3     //initial tank
+
+const Tank = 0 
+const Pump = 1
+const Demand = 2 
+
+range N = Tank..Demand
+
+//TANK 
+TANK = (start -> TANKRUN[C]),
+    TANKRUN[h:TankState] = (stop -> TANK
+		|getTankState[h] -> TANKRUN[h]
+            |tick -> 
+			    (incT[i:1..1] -> TANKRUN[h+i]
+        	    |decT[i:1..1] -> TANKRUN[h-i]
+        	    |noChangeT -> TANKRUN[h])).
+
+DEMAND = (start -> DEMANDRUN[B]), 
+    DEMANDRUN[d:DemandState] = (stop -> DEMAND 
+        |getDemandState[d] -> DEMANDRUN[d]
+            |tick -> 
+                (demand[1] -> DEMANDRUN[1]
+                |demand[2] -> DEMANDRUN[2]
+                |demand[3] -> DEMANDRUN[3]
+        )).
+
+PUMP = (start -> PUMPRUN[A]), 
+    PUMPRUN[p:PumpState] = (stop -> PUMP
+        |getPumpState[p] -> PUMPRUN[p]
+            |tick ->  
+                (pumpZero -> PUMPRUN[0]
+			    |pumpOne -> PUMPRUN[1]
+                |pumpTwo -> PUMPRUN[2]
+                |noChangeP -> PUMPRUN[p]
+        )).
+
+TIME = (start -> TIMERUN), 
+    TIMERUN = (stop -> TIME 
+        |tick -> TIMERUN
+        ).
+
+//Sensors
+DEMANDSENSOR = (start -> DEMANDSENSORRUN), 
+    DEMANDSENSORRUN = (stop -> DEMANDSENSOR 
+                    |getDemandState[d:DemandState] -> tick -> demandchan.send[d] -> DEMANDSENSORRUN). 
+
+PUMPSENSOR = (start -> PUMPSENSORRUN), 
+    PUMPSENSORRUN = (stop -> PUMPSENSOR
+                    |getPumpState[p:PumpState] -> tick ->  pumpchan.send[p] -> PUMPSENSORRUN). 
+
+TANKSENSOR = (start -> TANKSENSORRUN),
+    TANKSENSORRUN = (stop -> TANKSENSOR
+                    |getTankState[h:TankState] -> tick ->  tankchan.send[h] -> TANKSENSORRUN). 
+
+SYSCONTROL = (start -> SYSCONTROLRUN[A][B][C][Tank]), 
+    SYSCONTROLRUN[pi:PumpState][di:DemandState][hi:TankState][ni:N] = 
+        (stop -> SYSCONTROL
+        |pumpchan.receive[p:PumpState] -> tankchan.receive[h:TankState] -> demandchan.receive[d:DemandState] -> HC[p][d][h][Tank]),
+        HC[p:PumpState][d:DemandState][h:TankState][ni:N] = 
+            (when(p==0 && d==1 && ni==Tank) tankcontrollerchan.send[0] -> PC[p][d][h][Pump]
+            |when(p==0 && d==2 && ni==Tank) tankcontrollerchan.send[-1] -> PC[p][d][h][Pump]
+            |when(p==0 && d==3 && ni==Tank) tankcontrollerchan.send[-1] -> PC[p][d][h][Pump]
+            |when(p==1 && d==1 && ni==Tank) tankcontrollerchan.send[1] -> PC[p][d][h][Pump]
+            |when(p==1 && d==2 && ni==Tank) tankcontrollerchan.send[0] -> PC[p][d][h][Pump]
+            |when(p==1 && d==3 && ni==Tank) tankcontrollerchan.send[-1] -> PC[p][d][h][Pump]
+            |when(p==2 && d==1 && ni==Tank) tankcontrollerchan.send[1] -> PC[p][d][h][Pump]
+            |when(p==2 && d==2 && ni==Tank) tankcontrollerchan.send[0] -> PC[p][d][h][Pump]
+            |when(p==2 && d==3 && h<=2 && ni==Tank) tankcontrollerchan.send[0] -> PC[p][d][h][Pump]
+			|when(p==2 && d==3 && h>=3 && ni==Tank) tankcontrollerchan.send[-1] -> PC[p][d][h][Pump]),
+        
+        PC[p:PumpState][d:DemandState][h:TankState][ni:N] = 
+        //0 pumps on when tank height is 6,7
+        //1 pump on when tank height is 3,4,5
+        //2 pumps on when tank height is 1,2
+            (when(h==1 && p==2 && ni==Pump) pumpcontrollerchan.send[3] -> DC[p][d][h][Demand]
+			|when(h==1 && p!=2 && ni==Pump) pumpcontrollerchan.send[2] -> DC[p][d][h][Demand]
+            |when(h==2 && p==2 && ni==Pump) pumpcontrollerchan.send[3] -> DC[p][d][h][Demand]
+            |when(h==2 && p!=2 && ni==Pump) pumpcontrollerchan.send[2] -> DC[p][d][h][Demand]
+			|when(h==3 && p==1 && ni==Pump) pumpcontrollerchan.send[3] -> DC[p][d][h][Demand]
+            |when(h==3 && p!=1 && ni==Pump) pumpcontrollerchan.send[1] -> DC[p][d][h][Demand]
+            |when(h==4 && p==1 && ni==Pump) pumpcontrollerchan.send[3] -> DC[p][d][h][Demand]
+            |when(h==4 && p!=1 && ni==Pump) pumpcontrollerchan.send[1] -> DC[p][d][h][Demand]
+            |when(h==5 && p==1 && ni==Pump) pumpcontrollerchan.send[3] -> DC[p][d][h][Demand]
+            |when(h==5 && p!=1 && ni==Pump) pumpcontrollerchan.send[1] -> DC[p][d][h][Demand]
+            |when(h==6 && p==0 && ni==Pump) pumpcontrollerchan.send[3] -> DC[p][d][h][Demand]
+            |when(h==6 && p!=0 && ni==Pump) pumpcontrollerchan.send[0] -> DC[p][d][h][Demand]
+            |when(h==7 && p==0 && ni==Pump) pumpcontrollerchan.send[3] -> DC[p][d][h][Demand]
+            |when(h==7 && p!=0 && ni==Pump) pumpcontrollerchan.send[0] -> DC[p][d][h][Demand]),
+
+        DC[p:PumpState][d:DemandState][h:TankState][ni:N] = 
+            (demand[1] -> SYSCONTROLRUN[p][d][h][Tank]
+            |demand[2] -> SYSCONTROLRUN[p][d][h][Tank]
+            |demand[3] -> SYSCONTROLRUN[p][d][h][Tank]).
+
+PUMPACTUATOR = (start -> PUMPACTUATORRUN),
+	PUMPACTUATORRUN = (stop -> PUMPACTUATOR 
+		|tick -> pumpcontrollerchan.receive[o:DeltaPump] -> 
+            (when(o==0) pumpZero -> PUMPACTUATORRUN
+            |when(o==1) pumpOne -> PUMPACTUATORRUN
+            |when(o==2) pumpTwo -> PUMPACTUATORRUN
+            |when(o==3) noChangeP -> PUMPACTUATORRUN
+            )
+    ).
+  
+TANKACTUATOR = (start -> TANKACTUATORRUN), 
+    TANKACTUATORRUN = (stop -> TANKACTUATOR
+        |tick -> tankcontrollerchan.receive[j:DeltaTank] ->  
+            (when(j==0) noChangeT -> TANKACTUATORRUN
+            |when(j<0) decT[-1*j] -> TANKACTUATORRUN
+            |when(j>0) incT[j] -> TANKACTUATORRUN)
+    ).
+
+
+
+//PLC1 = (start -> PLC1RUN), 
+//	PLC1RUN = (stop -> PLC1
+//		|tick -> 
+
+||SYS = (TANK || TANKSENSOR || TANKACTUATOR || DEMAND || DEMANDSENSOR || PUMP || PUMPSENSOR || PUMPACTUATOR || TIME || SYSCONTROL)
+	/{tankchan/tankchan.{send,receive}, demandchan/demandchan.{send, receive}, pumpchan/pumpchan.{send,receive}, pumpcontrollerchan/pumpcontrollerchan.{send,receive}, demandcontrollerchan/demandcontrollerchan.{send,receive}, tankcontrollerchan/tankcontrollerchan.{send,receive}, timechan/timechan.{send,receive}}>>{tick}. 
+// maximal progress: lower the priority of tick (>>): eager physics
