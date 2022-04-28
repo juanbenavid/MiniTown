@@ -28,13 +28,14 @@ while True:
     pump1 = input ("Pump1:")
     pump2 = input("Pump2:")
     heightCheck = int(input("reachability bound:"))
+    horizon = int(input("time horizon (max 10 for now):"))
     writeState(tankState,pump1,pump2)
     writeStateHack(tankState,pump1,pump2)
     tankState = int(tankState)
 
     if heightCheck > tankState:
 
-        check = str("msat_check_ltlspec_bmc -p \" G (time <5 -> tank <=" + str(heightCheck) + ")\"")
+        check = str("msat_check_ltlspec_bmc -p \" G (time <" + str(horizon) + " -> tank <=" + str(heightCheck) + ")\"")
 
         with open("cmds.txt", "w") as file1:
             # Writing data to a file
@@ -46,7 +47,7 @@ while True:
         print(output)
 
     elif heightCheck < tankState:
-        check = str("msat_check_ltlspec_bmc -p \" G (time <5 -> tank >=" + str(heightCheck) + ")\"")
+        check = str("msat_check_ltlspec_bmc -p \" G (time <" + str(horizon) + " -> tank >=" + str(heightCheck) + ")\"")
         with open("cmds.txt", "w") as file1:
             # Writing data to a file
             file1.write("read_model -i quickRun.smv ; set msat_dump_frac_as_float 1; go_msat ;"+str(check)+";quit")
@@ -111,7 +112,7 @@ while True:
         print("...Checking with Potential Cyber Attacks... ")  
         if heightCheck > tankState:
 
-            check = str("msat_check_ltlspec_bmc -p \" G (time <5 -> tank <=" + str(heightCheck) + ")\"")
+            check = str("msat_check_ltlspec_bmc -p \" G (time <" + str(horizon) + " -> tank <=" + str(heightCheck) + ")\"")
 
             with open("cmds.txt", "w") as file1:
                 # Writing data to a file
@@ -123,7 +124,7 @@ while True:
             print(output)
 
         elif heightCheck < tankState:
-            check = str("msat_check_ltlspec_bmc -p \" G (time <5 -> tank >=" + str(heightCheck) + ")\"")
+            check = str("msat_check_ltlspec_bmc -p \" G (time <" + str(horizon) + " -> tank >=" + str(heightCheck) + ")\"")
             with open("cmds.txt", "w") as file1:
                 # Writing data to a file
                 file1.write("read_model -i quickRunHacker.smv ; set msat_dump_frac_as_float 1; go_msat ;"+str(check)+";quit")
@@ -180,6 +181,6 @@ while True:
 
             plt.show()
         else:
-            print("***No Counterexample Found - System is SAFE (up to 5 hours)***") 
+            print("***No Counterexample Found - System is SAFE (up to 10 hours)***") 
 
 

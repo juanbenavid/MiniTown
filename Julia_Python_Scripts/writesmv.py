@@ -61,16 +61,16 @@ TRANS pump1 = on & pump2 = off -> next(tank) = tank - dT1;
 TRANS pump1 = on & pump2 = on -> next(tank) = tank - dT2;
 TRANS pump1 = off & pump2 = on -> next(tank) = tank - dT1;
 
-LTLSPEC G (time <= 5 -> tank <= 400); -- 0
-LTLSPEC G (time <= 5 -> tank <= 550); -- 1
-LTLSPEC G (time <= 5 -> tank <= 600); -- 2
-LTLSPEC G (time <= 5 -> tank <= 650); -- 3
+LTLSPEC G (time <= 10 -> tank <= 400); -- 0
+LTLSPEC G (time <= 10 -> tank <= 550); -- 1
+LTLSPEC G (time <= 10 -> tank <= 600); -- 2
+LTLSPEC G (time <= 10 -> tank <= 650); -- 3
 
-LTLSPEC G (time <= 5 -> tank >= 300); -- 4
-LTLSPEC G (time <= 5 -> tank >= 200); -- 5
-LTLSPEC G (time <= 5 -> tank >= 100); -- 6
-LTLSPEC G (time <= 5 -> tank >= 25); -- 7
-LTLSPEC G (time <= 5 -> tank >= 10); -- 8
+LTLSPEC G (time <= 10 -> tank >= 300); -- 4
+LTLSPEC G (time <= 10 -> tank >= 200); -- 5
+LTLSPEC G (time <= 10 -> tank >= 100); -- 6
+LTLSPEC G (time <= 10 -> tank >= 25); -- 7
+LTLSPEC G (time <= 10 -> tank >= 10); -- 8
     ''')
 
     with open("quickRun.smv", "w") as file1:
@@ -169,16 +169,16 @@ TRANS pump1 = on & pump2 = off -> next(tank) = tank - dT1;
 TRANS pump1 = on & pump2 = on -> next(tank) = tank - dT2;
 TRANS pump1 = off & pump2 = on -> next(tank) = tank - dT1;
 
-LTLSPEC G (time <= 5 -> tank <= 400); -- 0
-LTLSPEC G (time <= 5 -> tank <= 550); -- 1
-LTLSPEC G (time <= 5 -> tank <= 600); -- 2
-LTLSPEC G (time <= 5 -> tank <= 650); -- 3
+LTLSPEC G (time <= 10 -> tank <= 400); -- 0
+LTLSPEC G (time <= 10 -> tank <= 550); -- 1
+LTLSPEC G (time <= 10 -> tank <= 600); -- 2
+LTLSPEC G (time <= 10 -> tank <= 650); -- 3
 
-LTLSPEC G (time <= 5 -> tank >= 300); -- 4
-LTLSPEC G (time <= 5 -> tank >= 200); -- 5
-LTLSPEC G (time <= 5 -> tank >= 100); -- 6
-LTLSPEC G (time <= 5 -> tank >= 25); -- 7
-LTLSPEC G (time <= 5 -> tank >= 10); -- 8
+LTLSPEC G (time <= 10 -> tank >= 300); -- 4
+LTLSPEC G (time <= 10 -> tank >= 200); -- 5
+LTLSPEC G (time <= 10 -> tank >= 100); -- 6
+LTLSPEC G (time <= 10 -> tank >= 25); -- 7
+LTLSPEC G (time <= 10 -> tank >= 10); -- 8
     ''')
 
     with open("quickRunHacker.smv", "w") as file1:
