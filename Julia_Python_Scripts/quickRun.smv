@@ -27,9 +27,9 @@ ASSIGN
 init(time) := 1;
 
     
-init(tank) :=600; 
-init(pump1) :=on; 
-init(pump2) :=on; 
+init(tank) :=10; 
+init(pump1) :=off; 
+init(pump2) :=off; 
 
 
 next(pump1) := case
